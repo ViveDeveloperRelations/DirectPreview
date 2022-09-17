@@ -93,6 +93,7 @@ namespace Editor
                 }
                 catch (Exception e)
                 {
+                    Debug.Log($"Exception in callback {nameof(WrappedWaitingForProcessToExit)} ");
                     UnityEngine.Debug.LogException(e);
                 }
             }

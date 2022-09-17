@@ -12,7 +12,7 @@ namespace Editor
     public class ADBWrapper
     {
         
-        [MenuItem("FOOBAR/TEST")]
+        //[MenuItem("FOOBAR/TEST")]
         public static void SetupAndroidLogcatWithReflection()
         {
             //TODO: should this respond if hte user changes their sdk settings?
@@ -69,10 +69,11 @@ namespace Editor
             var commandWrapper = new CommandWrapper(adbReflection.AndroidExtensionsAssembly,adbReflection.UnityEditorCoreModule);
             //ambiguous run methods... need to parse those out more carefully :/
             //commandWrapper.Run(adbReflection.AdbFacade.GetAdbPath(), "devices", "", "Error Running Devices");
-            //SimpleHelloWorld(commandWrapper);
-            //SimpleHelloWorldCMD(commandWrapper);
-            //SimpleHelloWorldCMDNoShellExecute(commandWrapper);
-            BlockingTestBrokenForNow(commandWrapper);
+            SimpleHelloWorld(commandWrapper);
+            SimpleHelloWorldCMD(commandWrapper);
+            SimpleHelloWorldCMDNoShellExecute(commandWrapper);
+            //BlockingTestBrokenForNow(commandWrapper);
+            NonBlockingManualStartProcess();
         }
 
         static void TestADBDevicesRunFromPath(CommandWrapper commandWrapper, AdbReflectionSetup adbReflection)
@@ -95,12 +96,42 @@ namespace Editor
             {
                 FileName = "C:\\Windows\\System32\\cmd.exe",
                 Arguments = "/c \"echo hello && timeout 10 && echo world\"",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
+                RedirectStandardOutput = false,
+                RedirectStandardError = false,
+                UseShellExecute = true,
                 CreateNoWindow = false,
             };
-            commandWrapper.Run(si, (ProgramWrapper program)=>{ Debug.Log("INNER PROGRAM WRAPPER LOG"); Debug.Log(program.GetAllOutput()); },"Error running wait and hello world");            
+            CommandWrapper.WaitingForProcessToExit duringWait = (ProgramWrapper program) =>
+            {
+                Debug.Log("INNER PROGRAM WRAPPER LOG");
+                Debug.Log(program.GetAllOutput());
+            };
+            commandWrapper.Run(si, null,"Error running wait and hello world");            
+            Debug.Log("After Running blocking test");
+        }
+
+        static void NonBlockingManualStartProcess()
+        {
+            var si = new ProcessStartInfo()
+            {
+                FileName = "C:\\Windows\\System32\\cmd.exe",
+                Arguments = "/c \"echo hello && timeout 10 && echo world\"",
+                RedirectStandardOutput = false,
+                RedirectStandardError = false,
+                UseShellExecute = true,
+                CreateNoWindow = false,
+            };
+            var proccess = new Process()
+            {
+                StartInfo = si,
+            };
+            proccess.Start();
+            proccess.Exited += (object sender, EventArgs e) =>
+            {
+                Debug.Log("Process Exited");
+                Debug.Log($"stdout; {proccess.StandardOutput.ReadToEnd()}");
+                Debug.Log($"stderr: {proccess.StandardError.ReadToEnd()}");
+            };
         }
         static void SimpleHelloWorldCMD(CommandWrapper commandWrapper)
         {
