@@ -66,7 +66,7 @@ namespace Editor
             if(waitingForProcessToExitType == null)
                 Debug.Log("WaitingForProcessToExitType is null");
             //var waitingForProcessToExitInstance = Activator.CreateInstance(waitingForProcessToExitType);
-            var commandWrapper = new CommandWrapper(adbReflection.AndroidExtensionsAssembly);
+            var commandWrapper = new CommandWrapper(adbReflection.AndroidExtensionsAssembly,adbReflection.UnityEditorCoreModule);
             //ambiguous run methods... need to parse those out more carefully :/
             //commandWrapper.Run(adbReflection.AdbFacade.GetAdbPath(), "devices", "", "Error Running Devices");
             ProcessStartInfo si = new ProcessStartInfo()
@@ -78,7 +78,7 @@ namespace Editor
                 UseShellExecute = false,
                 CreateNoWindow = true,
             };
-            commandWrapper.Run(si, null,"Error Running Devices with processStartInfo");
+            commandWrapper.Run(si, (ProgramWrapper program)=>{ Debug.Log("INNER PROGRAM WRAPPER LOG"); },"Error Running Devices with processStartInfo");
         }
 
         public class AdbReflectionSetup
