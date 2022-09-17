@@ -88,7 +88,7 @@ namespace Editor
                 UnityEngine.Debug.Log("OnWaitForProcessToExit");
                 try
                 {
-                    var programWrapped = new ProgramWrapper(m_ProgramType);
+                    var programWrapped = new ProgramWrapper(m_ProgramType,program);
                     m_Wrapped?.Invoke(programWrapped);
                 }
                 catch (Exception e)

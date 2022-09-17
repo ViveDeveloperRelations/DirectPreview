@@ -79,6 +79,16 @@ namespace Editor
                 CreateNoWindow = true,
             };
             commandWrapper.Run(si, (ProgramWrapper program)=>{ Debug.Log("INNER PROGRAM WRAPPER LOG"); },"Error Running Devices with processStartInfo");
+            si = new ProcessStartInfo()
+            {
+                FileName = "C:\\Windows\\System32\\cmd.exe",
+                Arguments = "/c \"echo hello && timeout 10 && echo world\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = true,
+                CreateNoWindow = false,
+            };
+            commandWrapper.Run(si, (ProgramWrapper program)=>{ Debug.Log("INNER PROGRAM WRAPPER LOG"); Debug.Log(program.GetAllOutput()); },"Error running wait and hello world");
         }
 
         public class AdbReflectionSetup
