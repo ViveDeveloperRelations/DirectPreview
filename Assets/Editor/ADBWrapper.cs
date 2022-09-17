@@ -69,12 +69,7 @@ namespace Editor
             var commandWrapper = new CommandWrapper(adbReflection.AndroidExtensionsAssembly,adbReflection.UnityEditorCoreModule);
             //ambiguous run methods... need to parse those out more carefully :/
             //commandWrapper.Run(adbReflection.AdbFacade.GetAdbPath(), "devices", "", "Error Running Devices");
-            //SimpleHelloWorld(commandWrapper);
-            //SimpleHelloWorldCMD(commandWrapper);
-            SimpleTimeout(commandWrapper);
-            //SimpleHelloWorldCMDNoShellExecute(commandWrapper);
-            //BlockingTestBrokenForNow(commandWrapper);
-            //NonBlockingManualStartProcess();
+
         }
 
 

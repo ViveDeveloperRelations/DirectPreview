@@ -36,6 +36,12 @@ public class ProcessTests
         var setup = GetSetup();
         SimpleTimeout(setup.Item1);
     }
+    [MenuItem("Tests/Process/SimpleHelloWorldCMDBlocksUntilKillSubprocessWithSlashC")]
+    public static void SimpleHelloWorldCMDBlocksUntilKillSubprocessWithSlashC()
+    {
+        var setup = GetSetup();
+        SimpleHelloWorldCMDBlocksUntilKillSubprocessWithSlashC(setup.Item1);
+    }
     [MenuItem("Tests/Process/SimpleHelloWorldCMDBlocksUntilKillSubprocess")]
     public static void SimpleHelloWorldCMDBlocksUntilKillSubprocess()
     {
@@ -82,8 +88,14 @@ public class ProcessTests
             UseShellExecute = false,
             CreateNoWindow = true,
         };
-        commandWrapper.Run(si, (ProgramWrapper program)=>{ Debug.Log("INNER PROGRAM WRAPPER LOG"); },"Error Running Devices with processStartInfo");
+        CommandWrapper.WaitingForProcessToExit duringWait = (ProgramWrapper program) =>
+        {
+            Debug.Log("INNER PROGRAM WRAPPER LOG");
+            Debug.Log(program.GetAllOutput());
+        };
+        commandWrapper.Run(si, duringWait,"Error Running Devices with processStartInfo");
     }
+
 
     static void BlockingTestBrokenForNow(CommandWrapper commandWrapper)
     {
@@ -172,6 +184,24 @@ public class ProcessTests
         {
             FileName = "C:\\Windows\\System32\\cmd.exe",
             Arguments = "/k \"echo hello\"",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = true,
+            CreateNoWindow = false,
+        };
+        CommandWrapper.WaitingForProcessToExit duringWait = (ProgramWrapper program) =>
+        {
+            Debug.Log("INNER PROGRAM WRAPPER LOG");
+            Debug.Log(program.GetAllOutput());
+        };
+        commandWrapper.Run(si, duringWait,"Error running wait and hello world");            
+    }
+    static void SimpleHelloWorldCMDBlocksUntilKillSubprocessWithSlashC(CommandWrapper commandWrapper)
+    {
+        var si = new ProcessStartInfo()
+        {
+            FileName = "C:\\Windows\\System32\\cmd.exe",
+            Arguments = "/c \"echo hello\"",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = true,
