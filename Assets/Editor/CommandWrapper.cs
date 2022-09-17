@@ -112,8 +112,6 @@ namespace Editor
                 return m_CachedWaitingForProcessDelegateType;
             }
         }
-        //public delegate void WaitingForProcessToExit(UnityEditor.Utils.Program program);
-        private delegate void WaitingForProcessToExitToPassIntoObjectDelegate(object programInstance);
         public delegate void WaitingForProcessToExit(ProgramWrapper program);
     }
 }
