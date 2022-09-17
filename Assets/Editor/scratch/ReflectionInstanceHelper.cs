@@ -10,22 +10,22 @@ namespace DirectPreview.Utility
     public class ReflectionInstanceHelper 
     {
         private Type m_Type;
-        private object m_Instance;
+        public readonly object Instance;
         public ReflectionInstanceHelper(Type type, object instance)
         {
             m_Type = type ?? throw new ArgumentNullException(nameof(type));
-            m_Instance = instance ?? throw new ArgumentNullException(nameof(instance));
+            Instance = instance ?? throw new ArgumentNullException(nameof(instance));
         }
         
 #region Fields
         public void SetPrivateField(string fieldName, object value)
         {
-            ReflectionHelpers.SetPrivateField(m_Instance, fieldName, value);
+            ReflectionHelpers.SetPrivateField(Instance, fieldName, value);
         }
 
         public object GetPrivateField(string fieldName)
         {
-            return ReflectionHelpers.GetPrivateField(m_Instance, fieldName);
+            return ReflectionHelpers.GetPrivateField(Instance, fieldName);
         }
 
         public void SetPrivateStaticField(string fieldName, object value)
@@ -43,15 +43,15 @@ namespace DirectPreview.Utility
 
         public object GetPublicPropertyObject(object obj, string propertyName)
         {
-            return ReflectionHelpers.GetPublicPropertyObject(m_Instance, propertyName);
+            return ReflectionHelpers.GetPublicPropertyObject(Instance, propertyName);
         }
         public void SetPrivateProperty(string propertyName, object value)
         {
-            ReflectionHelpers.SetPrivateProperty(m_Instance, propertyName, value);
+            ReflectionHelpers.SetPrivateProperty(Instance, propertyName, value);
         }
         public object GetPrivateProperty(string propertyName)
         {
-            return ReflectionHelpers.GetPrivateProperty(m_Instance, propertyName);
+            return ReflectionHelpers.GetPrivateProperty(Instance, propertyName);
         }
         public void SetPrivateStaticProperty(string propertyName, object value)
         {
@@ -70,12 +70,11 @@ namespace DirectPreview.Utility
         }
         public object InvokePublicMethod(string methodName, params object[] args)
         {
-            return ReflectionHelpers.InvokePublicMethod(m_Instance,methodName, args);
+            return ReflectionHelpers.InvokePublicMethod(Instance,methodName, args);
         }
-
         public void InvokePublicMethodVoidReturn(string methodName, params object[] args)
         {
-            ReflectionHelpers.InvokePublicMethodVoidReturn(m_Instance, methodName, args);
+            ReflectionHelpers.InvokePublicMethodVoidReturn(Instance, methodName, args);
         }
 
         public object InvokePublicStaticMethod(string methodName, params object[] args)

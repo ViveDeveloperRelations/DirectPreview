@@ -1,31 +1,32 @@
 ﻿using System;
 using System.Reflection;
+using DirectPreview.Utility;
 
 namespace Editor
 {
     public class AdbFacade
     {
         private Type m_ADBType;
-        private System.Object m_ADBInstance;
+        private ReflectionInstanceHelper m_AdbInstance;
         public AdbFacade(Type adbType)
         {
             m_ADBType = adbType ?? throw new ArgumentNullException(nameof(adbType));
-            m_ADBInstance = m_ADBType.GetMethod("GetInstance",BindingFlags.Public | BindingFlags.Static).Invoke(null, null) ?? throw new ArgumentNullException(nameof(m_ADBInstance));
+            Object newInstanceObject = ReflectionHelpers.InvokePublicStaticMethod(m_ADBType, "GetInstance", null) ??
+                                       throw new Exception("Failed to get ADB instance");
+            m_AdbInstance = new ReflectionInstanceHelper(m_ADBType,newInstanceObject);
         }
-
-            
         public bool IsAdbAvailable()
         {
-            return m_ADBType.GetMethod("IsADBAvailable",  BindingFlags.NonPublic | BindingFlags.Instance).Invoke(m_ADBInstance, null) as bool? ?? false;
+            return Convert.ToBoolean(m_AdbInstance.InvokePublicMethod("IsAdbAvailable"));
         }
         public string GetAdbPath()
         {
-            return m_ADBType.GetMethod("GetADBPath", BindingFlags.Public | BindingFlags.Instance).Invoke(m_ADBInstance, null) as string;
+            return m_AdbInstance.InvokePublicMethod("GetADBPath") as string;
         }
             
         public string Run(string[] command,string errorMessage)
         {
-            return m_ADBType.GetMethod("Run", BindingFlags.Public | BindingFlags.Instance).Invoke(m_ADBInstance, new object[] { command, errorMessage }) as string;
+            return m_AdbInstance.InvokePublicMethod("Run",command,errorMessage) as string;
         }
         /*
             public string Run(string[] command,CommandWrapper.WaitingForProcessToExit onWaitDelegate, string errorMsg)
