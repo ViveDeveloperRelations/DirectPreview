@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Palmmedia.ReportGenerator.Core;
@@ -48,9 +49,36 @@ namespace Editor
                 Debug.LogException(e);
             }*/
             //Debug.Log($"{adbFacade.Run(new[]{"shell", "ls"},"Error running adb")} ls");
-            CommandWrapper commandWrapper = new CommandWrapper(adbReflection.AndroidExtensionsAssembly.GetType("UnityEditor.Android.Command"));
-            commandWrapper.Run(adbFacade.GetAdbPath(), "devices","","Error Running Devices");
+            
+            //CommandWrapper commandWrapper = new CommandWrapper(adbReflection.AndroidExtensionsAssembly.GetType("UnityEditor.Android.Command"));
+            //commandWrapper.Run(adbFacade.GetAdbPath(), "devices","","Error Running Devices");
             Debug.Log("TEST BAR");
+        }
+        [MenuItem("FOOBAR/CommandTypeTest")]
+        public static void TestCommandType()
+        {
+            AdbReflectionSetup adbReflection = new AdbReflectionSetup();
+            var commandType = adbReflection.AndroidExtensionsAssembly.GetType("UnityEditor.Android.Command");
+            if(commandType == null)
+                Debug.Log("CommandType is null");
+            Type waitingForProcessToExitType = commandType.GetNestedType("WaitingForProcessToExit", BindingFlags.Public);
+            //var waitingForProcessToExitType = adbReflection.AndroidExtensionsAssembly.GetType("UnityEditor.Android.Command.WaitingForProcessToExit");
+            if(waitingForProcessToExitType == null)
+                Debug.Log("WaitingForProcessToExitType is null");
+            //var waitingForProcessToExitInstance = Activator.CreateInstance(waitingForProcessToExitType);
+            var commandWrapper = new CommandWrapper(adbReflection.AndroidExtensionsAssembly);
+            //ambiguous run methods... need to parse those out more carefully :/
+            //commandWrapper.Run(adbReflection.AdbFacade.GetAdbPath(), "devices", "", "Error Running Devices");
+            ProcessStartInfo si = new ProcessStartInfo()
+            {
+                FileName = adbReflection.AdbFacade.GetAdbPath(),
+                Arguments = "devices",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            };
+            commandWrapper.Run(si, null,"Error Running Devices with processStartInfo");
         }
 
         public class AdbReflectionSetup
