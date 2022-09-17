@@ -88,33 +88,30 @@ public class ProcessTests
             UseShellExecute = false,
             CreateNoWindow = true,
         };
-        CommandWrapper.WaitingForProcessToExit duringWait = (ProgramWrapper program) =>
+        
+        commandWrapper.Run(si, StandardDuringWait(),"Error Running Devices with processStartInfo");
+    }
+    public static CommandWrapper.WaitingForProcessToExit StandardDuringWait(){
+        return (ProgramWrapper program) =>
         {
             Debug.Log("INNER PROGRAM WRAPPER LOG");
             Debug.Log(program.GetAllOutput());
         };
-        commandWrapper.Run(si, duringWait,"Error Running Devices with processStartInfo");
     }
-
 
     static void BlockingTestBrokenForNow(CommandWrapper commandWrapper)
     {
         var si = new ProcessStartInfo()
         {
             FileName = "C:\\Windows\\System32\\cmd.exe",
-            Arguments = "/c \"echo hello && timeout 10 && echo world\"",
-            RedirectStandardOutput = false,
-            RedirectStandardError = false,
-            UseShellExecute = true,
+            Arguments = "/c \"echo hello && timeout 10 /nobreak&& echo world\"",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
             CreateNoWindow = false,
         };
-        CommandWrapper.WaitingForProcessToExit duringWait = (ProgramWrapper program) =>
-        {
-            Debug.Log("INNER PROGRAM WRAPPER LOG");
-            Debug.Log(program.GetAllOutput());
-        };
-        commandWrapper.Run(si, null,"Error running wait and hello world");            
-        Debug.Log("After Running blocking test");
+        string outputString = commandWrapper.Run(si, StandardDuringWait(),"Error running wait and hello world");            
+        Debug.Log("After Running blocking test and output is: " + outputString);
     }
 #if ENABLE_TESTS
     [MenuItem("Tests/Process/NonBlockingStartProcessThroughProcessDotStart")]
@@ -153,12 +150,9 @@ public class ProcessTests
             UseShellExecute = true,
             CreateNoWindow = true,
         };
-        CommandWrapper.WaitingForProcessToExit duringWait = (ProgramWrapper program) =>
-        {
-            Debug.Log("INNER PROGRAM WRAPPER LOG");
-            Debug.Log(program.GetAllOutput());
-        };
-        commandWrapper.Run(si, duringWait,"Error running wait and hello world");            
+
+        var output = commandWrapper.Run(si, StandardDuringWait(),"Error running wait and hello world");            
+        Debug.Log("After Running blocking test and output is: " + output);
     }
     static void SimpleTimeout(CommandWrapper commandWrapper)
     {
@@ -176,7 +170,8 @@ public class ProcessTests
             Debug.Log("INNER PROGRAM WRAPPER LOG");
             Debug.Log(program.GetAllOutput());
         };
-        commandWrapper.Run(si, duringWait,"Error running wait and hello world");            
+        var output= commandWrapper.Run(si, duringWait,"Error running wait and hello world");        
+        Debug.Log("After Running blocking test and output is: " + output);
     }
     static void SimpleHelloWorldCMDBlocksUntilKillSubprocess(CommandWrapper commandWrapper)
     {
@@ -189,12 +184,8 @@ public class ProcessTests
             UseShellExecute = true,
             CreateNoWindow = false,
         };
-        CommandWrapper.WaitingForProcessToExit duringWait = (ProgramWrapper program) =>
-        {
-            Debug.Log("INNER PROGRAM WRAPPER LOG");
-            Debug.Log(program.GetAllOutput());
-        };
-        commandWrapper.Run(si, duringWait,"Error running wait and hello world");            
+        var output= commandWrapper.Run(si, StandardDuringWait(),"Error running wait and hello world");     
+        Debug.Log("After Running blocking test and output is: " + output);
     }
     static void SimpleHelloWorldCMDBlocksUntilKillSubprocessWithSlashC(CommandWrapper commandWrapper)
     {
@@ -207,19 +198,15 @@ public class ProcessTests
             UseShellExecute = true,
             CreateNoWindow = false,
         };
-        CommandWrapper.WaitingForProcessToExit duringWait = (ProgramWrapper program) =>
-        {
-            Debug.Log("INNER PROGRAM WRAPPER LOG");
-            Debug.Log(program.GetAllOutput());
-        };
-        commandWrapper.Run(si, duringWait,"Error running wait and hello world");            
+        var output = commandWrapper.Run(si, StandardDuringWait(),"Error running wait and hello world");
+        Debug.Log("After Running blocking test and output is: " + output);
     }
     static void SimpleHelloWorldCMDNoShellExecute(CommandWrapper commandWrapper)
     {
         var si = new ProcessStartInfo()
         {
             FileName = "C:\\Windows\\System32\\cmd.exe",
-            Arguments = "/k \"echo hello\"",
+            Arguments = "/c \"echo hello\"",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
@@ -230,7 +217,8 @@ public class ProcessTests
             Debug.Log("INNER PROGRAM WRAPPER LOG");
             Debug.Log(program.GetAllOutput());
         };
-        commandWrapper.Run(si, duringWait,"Error running wait and hello world");            
+        var output = commandWrapper.Run(si, duringWait,"Error running wait and hello world");            
+        Debug.Log("After Running blocking test and output is: " + output);
     }
     static void SimpleHelloWorld(CommandWrapper commandWrapper)
     {
@@ -243,12 +231,8 @@ public class ProcessTests
             UseShellExecute = false,
             CreateNoWindow = true,
         };
-        CommandWrapper.WaitingForProcessToExit delegatea = (ProgramWrapper program) =>
-        {
-            Debug.Log("INNER PROGRAM WRAPPER LOG");
-            Debug.Log(program.GetAllOutput());
-        };
-        commandWrapper.Run(si, delegatea,"Error running wait and hello world");            
+        var output = commandWrapper.Run(si, StandardDuringWait(),"Error running wait and hello world");            
+        Debug.Log("After Running blocking test and output is: " + output);
     }
 
 }
