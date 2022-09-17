@@ -3,11 +3,11 @@ using System.Reflection;
 
 namespace DirectPreview.Utility
 {
-    public class ReflectionHelpers
+    public static class ReflectionHelpers
     {
 
-#region Fields
-        private static FieldInfo GetField(object obj, string fieldName, BindingFlags flags)
+        #region Fields
+        public static FieldInfo GetField(object obj, string fieldName, BindingFlags flags)
         {
             var type = obj.GetType();
             //do we need to check the above for null? I don't think so, but I'm not sure.
@@ -16,14 +16,14 @@ namespace DirectPreview.Utility
             return field;
         }
 
-        private static FieldInfo GetFieldFromType(Type type, string fieldName, BindingFlags flags)
+        public static FieldInfo GetFieldFromType(Type type, string fieldName, BindingFlags flags)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
             var field = type.GetField(fieldName, flags);
             if (field == null) throw new Exception("Field " + fieldName + "not found on type " + type.Name);
             return field;
         }
-        private static void SetField(object obj, string fieldName, BindingFlags flags,
+        public static void SetField(object obj, string fieldName, BindingFlags flags,
             object value) 
         {
             var type = obj.GetType();
@@ -50,18 +50,18 @@ namespace DirectPreview.Utility
         {
             return GetFieldFromType(type, fieldName, BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
         }
-#endregion //fields
+        #endregion //fields
 
-#region Properties
+        #region Properties
 
-        private static PropertyInfo GetProperty(object obj, string propertyName, BindingFlags flags)
+        public static PropertyInfo GetProperty(object obj, string propertyName, BindingFlags flags)
         {
             var type = obj.GetType();
             //do we need to check the above for null? I don't think so, but I'm not sure.
             var property = GetPropertyFromType(type, propertyName, flags);
             return property;
         }
-        private static PropertyInfo GetPropertyFromType(Type type, string propertyName, BindingFlags flags)
+        public static PropertyInfo GetPropertyFromType(Type type, string propertyName, BindingFlags flags)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
             var property = type.GetProperty(propertyName, flags);
@@ -91,10 +91,10 @@ namespace DirectPreview.Utility
         {
             return GetPropertyFromType(type, propertyName, BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
         }
-#endregion //Properties
+        #endregion //Properties
 
-#region Methods
-        private static MethodInfo GetMethodInfoFromType(Type type, BindingFlags flags, string methodName,params object[] args)
+        #region Methods
+        public static MethodInfo GetMethodInfoFromType(Type type, BindingFlags flags, string methodName,params object[] args)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
             var methodInfo = type.GetMethod(methodName, flags);
@@ -131,6 +131,6 @@ namespace DirectPreview.Utility
         {
             GetMethodInfoFromType(type, BindingFlags.Static | BindingFlags.Public, methodName, args).Invoke(null, args);
         }
-#endregion
+        #endregion
     }
 }
