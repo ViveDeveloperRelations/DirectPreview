@@ -25,11 +25,11 @@ namespace Wave.XR.DirectPreview.Editor
 	{
 		public Action<string> LogCallback = (string str)=>Debug.Log(str);
 		public Process process = new Process();
-		private bool startedProcess = false;
+		private bool m_StartedProcess = false;
 
 		public void Run(string command,string args)
 		{
-			if(startedProcess)
+			if(m_StartedProcess)
 			{
 				if(!process.HasExited)
 					process.Kill();
@@ -41,13 +41,20 @@ namespace Wave.XR.DirectPreview.Editor
 			try
 			{
 				process.Start();
-				startedProcess = true;
+				
+				process.OutputDataReceived += ProcessOnOutputDataReceived;
+				m_StartedProcess = true;
 			}
 			catch
 			{
 				LogCallback("Error while starting process");
 				throw;
 			}
+		}
+
+		private void ProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
+		{
+			LogCallback(e.Data);
 		}
 
 		void DumpAllProcessInfo()
@@ -58,6 +65,8 @@ namespace Wave.XR.DirectPreview.Editor
 			{
 				LogCallback($"stdout: {(process.StandardOutput == null ? "" : process.StandardOutput.ReadToEnd())}");
 				LogCallback($"stderr: {(process.StandardError == null ? "" : process.StandardError.ReadToEnd())}");
+				process.OutputDataReceived -= ProcessOnOutputDataReceived;
+				process.OutputDataReceived += ProcessOnOutputDataReceived;
 			}
 			catch (Exception e)
 			{
@@ -69,6 +78,7 @@ namespace Wave.XR.DirectPreview.Editor
 		{
 			if (process == null) return;
 			DumpAllProcessInfo();
+			process.OutputDataReceived -= ProcessOnOutputDataReceived;
 			process.Dispose();
 		}
 	}

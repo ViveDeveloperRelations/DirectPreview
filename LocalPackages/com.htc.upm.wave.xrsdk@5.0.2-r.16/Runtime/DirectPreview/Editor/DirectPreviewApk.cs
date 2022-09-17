@@ -21,15 +21,6 @@ namespace Wave.XR.DirectPreview.Editor
 {
 	public class DirectPreviewAPK
 	{
-		private static void GeneralSettings()
-		{
-			PlayerSettings.Android.bundleVersionCode = 1;
-			PlayerSettings.bundleVersion = "2.0.0";
-			PlayerSettings.companyName = "HTC Corp.";
-			PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
-			PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel22;
-		}
-
 		//[UnityEditor.MenuItem("Wave/DirectPreview/Install Device APK", priority = 801)]
 		public static void InstallSimulator()
 		{
@@ -298,28 +289,10 @@ namespace Wave.XR.DirectPreview.Editor
 
 		private static string getRenderTarget()
 		{
-			string ret = "";
-
-			var rd = EditorPrefs.GetInt("DPTargetDevice");
-
-			if (rd == 1)
-			{
-				ret = "FOCUS";
-			}
-			else
-			{
-				ret = "COSMOS";
-			}
-
-			if (ret.Equals("FOCUS"))
-			{
-				UnityEngine.Debug.Log("Render target is FOCUS");
-			} else
-			{
-				UnityEngine.Debug.Log("Render target is Other");
-			}
-
-			return ret;
+			DirectPreviewUnityStateVersion1 state =
+				DirectPreviewUnityStateStore.DeserializeDirectPreviewUnityStateVersionOrDefault();
+			
+			return state.DeviceType == DirectPreviewUnityStateVersion1.DeviceTypeEnum.Others ? "COSMOS" : "FOCUS";
 		}
 
 		private static void writeConfig()
