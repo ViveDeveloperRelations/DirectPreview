@@ -228,7 +228,7 @@ public class WaveXRPlayerSettingsConfigDialog : EditorWindow
 
 	static void Update()
 	{
-		Debug.Log("Check for Wave prefered editor settings");
+		//Debug.Log("Check for Wave prefered editor settings");
 		if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android)
 		{
 			var items = GetItems();
