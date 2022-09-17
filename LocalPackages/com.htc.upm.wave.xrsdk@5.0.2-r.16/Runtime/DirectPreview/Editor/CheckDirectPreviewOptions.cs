@@ -218,6 +218,7 @@ namespace Wave.XR.DirectPreview.Editor
                 return;
 
             isAdbChecked = true;
+            /*
             try
             {
                 Process myProcess = new Process();
@@ -243,6 +244,7 @@ namespace Wave.XR.DirectPreview.Editor
             {
                 UnityEngine.Debug.LogError(e);
             }
+            */
         }
 
         void ShowButtons()

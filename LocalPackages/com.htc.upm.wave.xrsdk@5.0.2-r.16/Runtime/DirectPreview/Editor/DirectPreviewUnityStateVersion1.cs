@@ -8,18 +8,36 @@ namespace Wave.XR.DirectPreview.Editor
     [Serializable]
     public class DirectPreviewUnityStateVersion1
     {
-        public int Version = 1;
+        public static DirectPreviewUnityStateVersion1 GetDefault()
+        {
+            return new DirectPreviewUnityStateVersion1()
+            {
+                Version = KNOWN_VERSION,
+                DeviceWifiAddress = string.Empty,
+                EnablePreviewImage = true,
+                OutputImageToFile = false,
+                FPS = FPSOption.DefaultOption,
+                
+                ConnectType = ConnectTypeEnum.WIFI,
+                TargetSizeRatio = TargetSizeRatioOption.DefaultOption,
+                DeviceType = DeviceTypeEnum.Others,
+            };
+        }
+
+        public static int KNOWN_VERSION = 1;
+        public int Version = KNOWN_VERSION;
         public string DeviceWifiAddress;
-        public bool EnablePreviewImage;
         //public bool DllTraceLogToFile;
+        public bool EnablePreviewImage;
+        public FPSOption FPS;
+        
         public bool OutputImageToFile;
-        public bool UpdateFrequency;
+        
         
         public ConnectTypeEnum ConnectType = ConnectTypeEnum.USB;
-        public FPSOption FPS;
-        public TargetSizeRatioOption TargetSizeRatio;
         
-        public bool DoesADBExist;
+        public TargetSizeRatioOption TargetSizeRatio;
+        public DeviceTypeEnum DeviceType;
         
         public enum ConnectTypeEnum
         {
@@ -35,6 +53,10 @@ namespace Wave.XR.DirectPreview.Editor
         public class TargetSizeRatioOption
         {
             public int TargetSizeRatioInt;
+            
+            public static TargetSizeRatioOption DefaultOption => new TargetSizeRatioOption(){TargetSizeRatioInt = TargetSizeRatioOptions[0].Item1};
+            public static int[] TargetSizeValues => TargetSizeRatioOptions.Select((pair) => pair.Item1).ToArray();
+            public static string[] TargetSizeStrings => TargetSizeRatioOptions.Select((pair) => pair.Item2).ToArray();
             public static Tuple<int,string>[] TargetSizeRatioOptions = new Tuple<int, string>[]
             {
                 new Tuple<int, string>(1, "1"),
@@ -53,6 +75,9 @@ namespace Wave.XR.DirectPreview.Editor
         public class FPSOption
         {
             public int FPSOptionInt; //TODO: maybe serialize a tuple to avoid index issues
+            public static FPSOption DefaultOption => new FPSOption(){FPSOptionInt = FPS_Pairs[0].Item1};
+            public static int[] FPS_Serialized_Int_Values => FPS_Pairs.Select((pair) => pair.Item1).ToArray();
+            public static string[] FPS_Printable_Names => FPS_Pairs.Select((pair) => pair.Item2).ToArray();
             public static Tuple<int, string>[] FPS_Pairs = new Tuple<int, string>[]
             {
                 new(0, "Runtime Defined"),
