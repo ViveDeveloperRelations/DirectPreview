@@ -69,6 +69,12 @@ namespace Editor
             var commandWrapper = new CommandWrapper(adbReflection.AndroidExtensionsAssembly,adbReflection.UnityEditorCoreModule);
             //ambiguous run methods... need to parse those out more carefully :/
             //commandWrapper.Run(adbReflection.AdbFacade.GetAdbPath(), "devices", "", "Error Running Devices");
+            SimpleHelloWorldCMD(commandWrapper);
+
+        }
+
+        static void TestADBDevicesRunFromPath(CommandWrapper commandWrapper, AdbReflectionSetup adbReflection)
+        {
             ProcessStartInfo si = new ProcessStartInfo()
             {
                 FileName = adbReflection.AdbFacade.GetAdbPath(),
@@ -79,7 +85,11 @@ namespace Editor
                 CreateNoWindow = true,
             };
             commandWrapper.Run(si, (ProgramWrapper program)=>{ Debug.Log("INNER PROGRAM WRAPPER LOG"); },"Error Running Devices with processStartInfo");
-            si = new ProcessStartInfo()
+        }
+
+        static void BlockingTestBrokenForNow(CommandWrapper commandWrapper)
+        {
+            var si = new ProcessStartInfo()
             {
                 FileName = "C:\\Windows\\System32\\cmd.exe",
                 Arguments = "/c \"echo hello && timeout 10 && echo world\"",
@@ -88,7 +98,20 @@ namespace Editor
                 UseShellExecute = true,
                 CreateNoWindow = false,
             };
-            commandWrapper.Run(si, (ProgramWrapper program)=>{ Debug.Log("INNER PROGRAM WRAPPER LOG"); Debug.Log(program.GetAllOutput()); },"Error running wait and hello world");
+            commandWrapper.Run(si, (ProgramWrapper program)=>{ Debug.Log("INNER PROGRAM WRAPPER LOG"); Debug.Log(program.GetAllOutput()); },"Error running wait and hello world");            
+        }
+        static void SimpleHelloWorldCMD(CommandWrapper commandWrapper)
+        {
+            var si = new ProcessStartInfo()
+            {
+                FileName = "C:\\Windows\\System32\\cmd.exe",
+                Arguments = "/k \"echo hello\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = true,
+                CreateNoWindow = false,
+            };
+            commandWrapper.Run(si, (ProgramWrapper program)=>{ Debug.Log("INNER PROGRAM WRAPPER LOG"); Debug.Log(program.GetAllOutput()); },"Error running wait and hello world");            
         }
 
         public class AdbReflectionSetup
