@@ -69,11 +69,12 @@ namespace Editor
             var commandWrapper = new CommandWrapper(adbReflection.AndroidExtensionsAssembly,adbReflection.UnityEditorCoreModule);
             //ambiguous run methods... need to parse those out more carefully :/
             //commandWrapper.Run(adbReflection.AdbFacade.GetAdbPath(), "devices", "", "Error Running Devices");
-            SimpleHelloWorld(commandWrapper);
-            SimpleHelloWorldCMD(commandWrapper);
-            SimpleHelloWorldCMDNoShellExecute(commandWrapper);
+            //SimpleHelloWorld(commandWrapper);
+            //SimpleHelloWorldCMD(commandWrapper);
+            SimpleTimeout(commandWrapper);
+            //SimpleHelloWorldCMDNoShellExecute(commandWrapper);
             //BlockingTestBrokenForNow(commandWrapper);
-            NonBlockingManualStartProcess();
+            //NonBlockingManualStartProcess();
         }
 
         static void TestADBDevicesRunFromPath(CommandWrapper commandWrapper, AdbReflectionSetup adbReflection)
@@ -138,11 +139,47 @@ namespace Editor
             var si = new ProcessStartInfo()
             {
                 FileName = "C:\\Windows\\System32\\cmd.exe",
-                Arguments = "/k \"echo hello\"",
+                Arguments = "/c \"echo hello\"",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = true,
                 CreateNoWindow = true,
+            };
+            CommandWrapper.WaitingForProcessToExit duringWait = (ProgramWrapper program) =>
+            {
+                Debug.Log("INNER PROGRAM WRAPPER LOG");
+                Debug.Log(program.GetAllOutput());
+            };
+            commandWrapper.Run(si, duringWait,"Error running wait and hello world");            
+        }
+        static void SimpleTimeout(CommandWrapper commandWrapper)
+        {
+            var si = new ProcessStartInfo()
+            {
+                FileName = "C:\\Windows\\System32\\timeout.exe",
+                Arguments = "10",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            };
+            CommandWrapper.WaitingForProcessToExit duringWait = (ProgramWrapper program) =>
+            {
+                Debug.Log("INNER PROGRAM WRAPPER LOG");
+                Debug.Log(program.GetAllOutput());
+            };
+            commandWrapper.Run(si, duringWait,"Error running wait and hello world");            
+        }
+        static void SimpleHelloWorldCMDBlocksUntilKillSubprocess(CommandWrapper commandWrapper)
+        {
+            var si = new ProcessStartInfo()
+            {
+                FileName = "C:\\Windows\\System32\\cmd.exe",
+                Arguments = "/k \"echo hello\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = true,
+                CreateNoWindow = false,
             };
             CommandWrapper.WaitingForProcessToExit duringWait = (ProgramWrapper program) =>
             {
