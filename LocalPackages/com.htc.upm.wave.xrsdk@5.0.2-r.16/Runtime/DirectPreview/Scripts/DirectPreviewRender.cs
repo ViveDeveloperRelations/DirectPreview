@@ -11,13 +11,15 @@ namespace Wave.XR.DirectPreview
 	[DisallowMultipleComponent]
 	public class DirectPreviewRender : MonoBehaviour
 	{
-		private static string TAG = "DirectPreviewRender:";
-
 		[DllImport("wvr_plugins_directpreview", EntryPoint = "WVR_SetRenderImageHandles")]
 		public static extern bool WVR_SetRenderImageHandles(IntPtr[] ttPtr);
 
+#pragma warning disable 414
+		private static string TAG = "DirectPreviewRender:";
 		static bool leftCall = false;
 		static bool rightCall = false;
+#pragma warning restore 414
+
 		static bool isLeftReady = false;
 		static bool isRightReady = false;
 		static RenderTexture rt_L;
