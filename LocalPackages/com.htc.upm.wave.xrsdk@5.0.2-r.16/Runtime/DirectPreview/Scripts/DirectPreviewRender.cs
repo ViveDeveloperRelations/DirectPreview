@@ -54,12 +54,21 @@ namespace Wave.XR.DirectPreview
 			}
 		}
 
+		private void OnDisable()
+		{
+			isLeftReady = false;
+			isRightReady = false;
+		}
+
 
 		void OnRenderImage(RenderTexture src, RenderTexture dest)
 		{
 			//Debug.Log("vrUsage=" + src.vrUsage + ", width=" + src.width + ", height=" + src.height + ", name=" + src.name + ", frame=" + frame + ", eye=" + camera.stereoActiveEye);
 			//Debug.Log("src native ptr: " + src.GetNativeTexturePtr() + ", eye=" + camera.stereoActiveEye);
-
+			if(src.height % 2 != 0)
+			{
+				Debug.LogError($"src height is not even number height{src.height} width {src.width}"); //debug cases where this happens
+			}
 			Graphics.Blit(src, dest);
 
 			var height = src.height;
@@ -96,8 +105,10 @@ namespace Wave.XR.DirectPreview
 					}
 					else
 					{
-						//UnityEngine.Debug.LogWarning("WVR_SetRenderImageHandles fail");
+						UnityEngine.Debug.LogError("WVR_SetRenderImageHandles fail");
 					}
+					//are these accessed by the plugin - if so there seems to be a potential race with the above call if it's running on a different thread.
+					//if not, then they seem unnecessary except in local scope
 					isLeftReady = false;
 					isRightReady = false;
 				}
