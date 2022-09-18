@@ -46,7 +46,8 @@ namespace Wave.XR.DirectPreview
 		[InitializeOnEnterPlayMode]
 		static void OnEnterPlayModeMethod(EnterPlayModeOptions options)
 		{
-			EnableDirectPreview = EditorPrefs.GetBool("Wave/DirectPreview/EnableDirectPreview", false);
+			var directPreviewState = DirectPreviewUnityStateStore.DeserializeDirectPreviewUnityStateVersionOrDefault();
+			EnableDirectPreview = directPreviewState.DirectPreviewEnabled;
 			PrintDebug("OnEnterPlayModeMethod: " + EnableDirectPreview);
 
 			if (EnableDirectPreview)
@@ -81,9 +82,8 @@ namespace Wave.XR.DirectPreview
 
 		public static void DP_Init()
 		{
-			EnableDirectPreview = EditorPrefs.GetBool("Wave/DirectPreview/EnableDirectPreview", false); // Should this be per-project and per-user? or per-user only?
-			
 			var dpSerializedState = DirectPreviewUnityStateStore.DeserializeDirectPreviewUnityStateVersionOrDefault();
+			EnableDirectPreview = dpSerializedState.DirectPreviewEnabled; // Should this be per-project and per-user? or per-user only?
 
 			string wifi_ip_state = dpSerializedState.DeviceWifiAddress;
 			bool tPreview = EditorPrefs.GetBool("EnablePreviewImage", true);
@@ -124,13 +124,14 @@ namespace Wave.XR.DirectPreview
 				PrintDebug("OnSceneLoaded() call WVR_PostInit()");
 				//FIXME: assumes there's a camera.main on scene load, sometimes this is loaded later and/or swapped out at runtime. also multiple scene loads could cause multple attaches
 				var camera = Camera.main;
-				if(camera != null)
+				if (camera != null)
 				{
-					if(camera.gameObject.GetComponent<DirectPreviewRender>() == null)
+					DirectPreviewRender directPreviewRender = camera.gameObject.GetComponent<DirectPreviewRender>();
+					if(directPreviewRender == null)
 					{
-						camera.gameObject.AddComponent<DirectPreviewRender>();
+						directPreviewRender = camera.gameObject.AddComponent<DirectPreviewRender>();
 					}
-					var directPreviewRenderer = camera.gameObject.AddComponent<DirectPreviewRender>();
+					//set up state if desired on directpreview, including a callback if the camera is disabled or the tag is changed from camera.main
 				}
 			}
 		}
