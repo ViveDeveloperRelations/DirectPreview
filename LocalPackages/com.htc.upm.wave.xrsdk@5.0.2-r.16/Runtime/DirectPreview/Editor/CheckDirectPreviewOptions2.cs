@@ -149,7 +149,8 @@ namespace Wave.XR.DirectPreview.Editor
 		/// Called on load thanks to the InitializeOnLoad attribute
 		static CheckIfSimulatorEnabled2()
 		{
-			CheckIfSimulatorEnabled2.enabled_ = EditorPrefs.GetBool(CheckIfSimulatorEnabled2.MENU_NAME, false);
+			DirectPreviewUnityStateVersion1 state = DirectPreviewUnityStateStore.DeserializeDirectPreviewUnityStateVersionOrDefault();
+			CheckIfSimulatorEnabled2.enabled_ = state.DirectPreviewEnabled;
 			//if (CheckIfSimulatorEnabled.enabled_)
 			//{
 			//	switchGaphicsEmulationInner(true);
@@ -160,21 +161,20 @@ namespace Wave.XR.DirectPreview.Editor
 			/// re-apply correct action
 			EditorApplication.delayCall += () =>
 			{
-				PerformAction(CheckIfSimulatorEnabled2.enabled_);
+				PerformAction(CheckIfSimulatorEnabled2.enabled_,state);
 			};
 		}
 
 		[MenuItem(CheckIfSimulatorEnabled2.MENU_NAME, priority = 601)]
 		private static void ToggleAction()
 		{
+			DirectPreviewUnityStateVersion1 state = DirectPreviewUnityStateStore.DeserializeDirectPreviewUnityStateVersionOrDefault();
 			if (!CheckIfSimulatorEnabled2.enabled_)
 			{
-
-				if (!EditorPrefs.GetBool(CheckIfSimulatorEnabled2.DIRECT_PREVIEW_CONTROL_PANEL_MENU_NAME))
+				if (!state.DirectPreviewEnabled)
 				{
 					DirectPreviewControlPanel2 window = (DirectPreviewControlPanel2)EditorWindow.GetWindow<DirectPreviewControlPanel2>("DirectPreview");
 					window.Show();
-                    EditorPrefs.SetBool(CheckIfSimulatorEnabled2.DIRECT_PREVIEW_CONTROL_PANEL_MENU_NAME, true);
 				}
 
 				//switchGaphicsEmulationInner(true);
@@ -185,15 +185,16 @@ namespace Wave.XR.DirectPreview.Editor
 				//switchGaphicsEmulationInner(false);
 			}
 			/// Toggling action
-			PerformAction(!CheckIfSimulatorEnabled2.enabled_);
+			PerformAction(!CheckIfSimulatorEnabled2.enabled_,state);
 		}
 
-		public static void PerformAction(bool enabled)
+		public static void PerformAction(bool enabled,DirectPreviewUnityStateVersion1 state)
 		{
 			/// Set checkmark on menu item
 			Menu.SetChecked(CheckIfSimulatorEnabled2.MENU_NAME, enabled);
 			/// Saving editor state
-			EditorPrefs.SetBool(CheckIfSimulatorEnabled2.MENU_NAME, enabled);
+			state.DirectPreviewEnabled = enabled;
+			DirectPreviewUnityStateStore.Store(state);
 
 			CheckIfSimulatorEnabled2.enabled_ = enabled;
 		}
