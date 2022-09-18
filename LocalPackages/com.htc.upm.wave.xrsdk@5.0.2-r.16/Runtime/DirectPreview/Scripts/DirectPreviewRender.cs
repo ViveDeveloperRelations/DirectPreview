@@ -32,15 +32,6 @@ namespace Wave.XR.DirectPreview
 			return (long)((DateTime.UtcNow - Jan1st1970).TotalMilliseconds);
 		}
 
-		private static void PrintError(string msg)
-		{
-			Debug.LogError(TAG + ": " + msg);
-		}
-
-		private static void PrintDebug(string msg)
-		{
-			Debug.Log(TAG + ": " + msg);
-		}
 		Material mat;
 
 		private void Start()
@@ -111,15 +102,6 @@ namespace Wave.XR.DirectPreview
 				}
 			}
 
-
-
-
-			if (isLeftReady && isRightReady)
-			{
-
-
-
-			}
 		}
 	}
 }
