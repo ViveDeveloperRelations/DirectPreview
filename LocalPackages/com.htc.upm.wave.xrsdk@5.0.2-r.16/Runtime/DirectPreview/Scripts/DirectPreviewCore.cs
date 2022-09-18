@@ -35,7 +35,6 @@ namespace Wave.XR.DirectPreview
 		public static extern void EnableDP(bool enable, SIM_ConnectType type, IntPtr addr, bool preview, bool printLog, bool saveImage);
 
 		public static bool EnableDirectPreview = false;
-		private static Camera camera = null;
 
 		private static string LOG_TAG = "DirectPreviewCore";
 		static bool saveLog = false;
