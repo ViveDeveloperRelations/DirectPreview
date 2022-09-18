@@ -29,6 +29,7 @@ namespace Wave.XR.DirectPreview
 		static long lastUpdateTime = 0;
 		new Camera camera;
 
+		//is this only used to produce the same value as Time.deltaTime or is it more of a StopWatch type of thing? Those might seem more appropriate
 		public static long getCurrentTimeMillis()
 		{
 			DateTime Jan1st1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
