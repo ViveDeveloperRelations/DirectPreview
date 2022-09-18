@@ -109,7 +109,9 @@ namespace Wave.XR.DirectPreview.Editor
 			return File.Exists(absolutePath);
 		}
 
+#pragma warning disable 414
 		private static bool ProcessExited = false;
+#pragma warning restore 414
 		
 		// Launch rrServer
 		public static void StartStreamingServer()
