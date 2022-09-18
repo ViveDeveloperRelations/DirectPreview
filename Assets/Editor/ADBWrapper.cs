@@ -54,7 +54,7 @@ namespace Editor
             //commandWrapper.Run(adbFacade.GetAdbPath(), "devices","","Error Running Devices");
             Debug.Log("TEST BAR");
         }
-        [MenuItem("FOOBAR/CommandTypeTest")]
+        //[MenuItem("FOOBAR/CommandTypeTest")]
         public static void TestCommandType()
         {
             AdbReflectionSetup adbReflection = new AdbReflectionSetup();
@@ -69,10 +69,39 @@ namespace Editor
             var commandWrapper = new CommandWrapper(adbReflection.AndroidExtensionsAssembly,adbReflection.UnityEditorCoreModule);
             //ambiguous run methods... need to parse those out more carefully :/
             //commandWrapper.Run(adbReflection.AdbFacade.GetAdbPath(), "devices", "", "Error Running Devices");
+        }
+        [MenuItem("FOOBAR/Test ADB Devices")]
+        public static void TestADBDevices()
+        {
+            AdbReflectionSetup adbReflection = new AdbReflectionSetup();
 
+            var adbFacade = adbReflection.AdbFacade;
+            //Debug.Log($"{adbFacade.Run(new[]{"devices"},"Error running adb devices")} devices");
+            Debug.Log($"is adb available {adbFacade.IsAdbAvailable()} ");
+            Debug.Log($"adb path {adbFacade.GetAdbPath()} ");
+            AdbStatusFacade processStatus = adbFacade.GetADBProcessStatus();
+            if (processStatus != null)
+            {
+                ADBProcessStatus status = processStatus.Status();
+                Debug.Log($"ADB Process Status {status.ToString()}");
+                var processes = processStatus.Processes();
+                if (processes != null)
+                {
+                    foreach (ADBProcFacade adbProcFacade in processes)
+                    {
+                        var process = adbProcFacade.Process();
+                        Debug.Log($"Process id {process.Id} {process.ProcessName} {process.StartTime} fullPath {adbProcFacade.FullPath()} external {adbProcFacade.External()}");
+                    }
+                }
+            }
+            else
+            {
+                Debug.Log("process status is null");
+            }
         }
 
 
+        //scratchpad for prerequisites for wrapping the adb class "UnityEditor.Android.ADB" inside of "UnityEditor.Android.Extensions"
         public class AdbReflectionSetup
         {
             public Assembly AndroidExtensionsAssembly;
@@ -82,20 +111,34 @@ namespace Editor
 
             public Assembly UnityEditorCoreModule;
             //public System.Object AdbInstance;
+            public SETUP_STATUS SetupStatus;
+            public enum SETUP_STATUS
+            {
+                UNINITIALIZED,
+                FAILED,
+                SUCCESS
+            }
             public AdbReflectionSetup()
             {
-                AndroidExtensionsAssembly = GetAndroidExtensionsAssembly();
-                if (AndroidExtensionsAssembly == null)
-                    return;
-                AndroidDeviceType = AndroidExtensionsAssembly.GetType("UnityEditor.Android.AndroidDevice");
-                if (AndroidDeviceType == null)
-                    return;
-                AdbType = AndroidExtensionsAssembly.GetType("UnityEditor.Android.ADB");
-                if (AdbType == null)
-                    return;
-                AdbFacade = new AdbFacade(AdbType);
-                UnityEditorCoreModule = GetUnityEditorCoreModuleAssembly();
+                try
+                {
+                    AndroidExtensionsAssembly = GetAndroidExtensionsAssembly();
+                    if (AndroidExtensionsAssembly == null)
+                        return;
+                    AndroidDeviceType = AndroidExtensionsAssembly.GetType("UnityEditor.Android.AndroidDevice");
+                    if (AndroidDeviceType == null)
+                        return;
+                    AdbType = AndroidExtensionsAssembly.GetType("UnityEditor.Android.ADB");
+                    if (AdbType == null)
+                        return;
+                    AdbFacade = new AdbFacade(AdbType);
+                    UnityEditorCoreModule = GetUnityEditorCoreModuleAssembly();
+                    SetupStatus = UnityEditorCoreModule != null && AdbType != null && AndroidDeviceType != null ? SETUP_STATUS.SUCCESS : SETUP_STATUS.FAILED;
+                }catch{
+                    SetupStatus = SETUP_STATUS.FAILED;
+                }
                 //ProgramWrapper programWrapper = new ProgramWrapper(coreModule.GetType("UnityEditor.Utils.Program"),null);
+                SetupStatus = SETUP_STATUS.SUCCESS;
             }
             private Assembly GetAndroidExtensionsAssembly()
             {
@@ -115,5 +158,7 @@ namespace Editor
             }
             
         }
+        
+        
     }
 }
