@@ -24,7 +24,6 @@ namespace Wave.XR.DirectPreview
 		static IntPtr[] rt = new IntPtr[2];
 		static int mFPS = 60;
 		static long lastUpdateTime = 0;
-		int frame = 0;
 		new Camera camera;
 
 		public static long getCurrentTimeMillis()
@@ -63,13 +62,8 @@ namespace Wave.XR.DirectPreview
 			}
 		}
 
-		private void Update()
-		{
-			frame++;
-		}
 
-
-	void OnRenderImage(RenderTexture src, RenderTexture dest)
+		void OnRenderImage(RenderTexture src, RenderTexture dest)
 		{
 			//Debug.Log("vrUsage=" + src.vrUsage + ", width=" + src.width + ", height=" + src.height + ", name=" + src.name + ", frame=" + frame + ", eye=" + camera.stereoActiveEye);
 			//Debug.Log("src native ptr: " + src.GetNativeTexturePtr() + ", eye=" + camera.stereoActiveEye);
