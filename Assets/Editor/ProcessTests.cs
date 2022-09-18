@@ -18,11 +18,11 @@ public class ProcessTests
         var setup = GetSetup();
         TestADBDevicesRunFromPath(setup.Item1, setup.Item2);
     }
-    [MenuItem("Tests/Process/BlockingTestBrokenForNow")]
-    public static void BlockingTestBrokenForNow()
+    [MenuItem("Tests/Process/BlockingTestUsingStandardWait")]
+    public static void BlockingTestUsingStandardWait()
     {
         var setup = GetSetup();
-        BlockingTestBrokenForNow(setup.Item1);
+        BlockingTestUsingStandardWait(setup.Item1);
     }
     [MenuItem("Tests/Process/SimpleHelloWorldCMD")]
     public static void SimpleHelloWorldCMD()
@@ -89,7 +89,8 @@ public class ProcessTests
             CreateNoWindow = true,
         };
         
-        commandWrapper.Run(si, StandardDuringWait(),"Error Running Devices with processStartInfo");
+        string outputString = commandWrapper.Run(si, StandardDuringWait(),"Error Running Devices with processStartInfo");
+        Debug.Log(outputString);
     }
     public static CommandWrapper.WaitingForProcessToExit StandardDuringWait(){
         return (ProgramWrapper program) =>
@@ -99,15 +100,15 @@ public class ProcessTests
         };
     }
 
-    static void BlockingTestBrokenForNow(CommandWrapper commandWrapper)
+    static void BlockingTestUsingStandardWait(CommandWrapper commandWrapper)
     {
         var si = new ProcessStartInfo()
         {
             FileName = "C:\\Windows\\System32\\cmd.exe",
-            Arguments = "/c \"echo hello && timeout 10 /nobreak&& echo world\"",
+            Arguments = "/c \"echo hello && ping /n 3 google.com && echo world\"",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            UseShellExecute = false,
+            UseShellExecute = true,
             CreateNoWindow = false,
         };
         string outputString = commandWrapper.Run(si, StandardDuringWait(),"Error running wait and hello world");            
@@ -121,24 +122,59 @@ public class ProcessTests
         var si = new ProcessStartInfo()
         {
             FileName = "C:\\Windows\\System32\\cmd.exe",
-            Arguments = "/c \"echo hello && timeout 10 && echo world\"",
+            Arguments = "/c \"echo hello && ping /n 3 google.com && echo world\"",
             RedirectStandardOutput = false,
             RedirectStandardError = false,
             UseShellExecute = true,
             CreateNoWindow = false,
         };
-        var proccess = new Process()
+        var process = new Process()
         {
             StartInfo = si,
         };
-        proccess.Start();
-        proccess.Exited += (object sender, EventArgs e) =>
+        process.Start();
+        process.Exited += (object sender, EventArgs e) =>
         {
             Debug.Log("Process Exited");
-            Debug.Log($"stdout; {proccess.StandardOutput.ReadToEnd()}");
-            Debug.Log($"stderr: {proccess.StandardError.ReadToEnd()}");
+            Debug.Log($"stdout; {process.StandardOutput.ReadToEnd()}");
+            Debug.Log($"stderr: {process.StandardError.ReadToEnd()}");
         };
+        //process.WaitForExit(); //needed for the exited event to fire here
+        Debug.Log("After Running blocking test and output is: " + process.StandardOutput.ReadToEnd());
     }
+    
+#if ENABLE_TESTS
+    [MenuItem("Tests/Process/BlockingStartProcessThroughProcessDotStart")]
+#endif
+    static void BlockingStartProcessThroughProcessDotStart()
+    {
+        var si = new ProcessStartInfo()
+        {
+            FileName = "C:\\Windows\\System32\\cmd.exe",
+            Arguments = "/c \"echo hello && ping /n 3 google.com && echo world\"",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = false,
+        };
+        var process = new Process()
+        {
+            StartInfo = si,
+        };
+        process.Start();
+        process.Exited += (object sender, EventArgs e) =>
+        {
+            Debug.Log("Process Exited");
+            Debug.Log($"stdout; {process.StandardOutput.ReadToEnd()}");
+            Debug.Log($"stderr: {process.StandardError.ReadToEnd()}");
+        };
+        //process.WaitForExit(); //this isn't enough to prevent process from out of scope, but should work otherwise afaik
+
+        while (!process.WaitForExit(100)) ; //block editor for the exited event to fire here, otherwise it gets disposed
+
+        Debug.Log("After Running blocking test and output is: " + process.StandardOutput.ReadToEnd());
+    }
+
     static void SimpleHelloWorldCMD(CommandWrapper commandWrapper)
     {
         var si = new ProcessStartInfo()
@@ -158,7 +194,7 @@ public class ProcessTests
     {
         var si = new ProcessStartInfo()
         {
-            FileName = "C:\\Windows\\System32\\timeout.exe",
+            FileName = "C:\\Windows\\System32\\timeout.exe", //this requires input
             Arguments = "10",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
