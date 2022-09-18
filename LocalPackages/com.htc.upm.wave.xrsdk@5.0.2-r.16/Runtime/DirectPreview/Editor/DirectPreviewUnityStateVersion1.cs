@@ -26,6 +26,9 @@ namespace Wave.XR.DirectPreview.Editor
 
         public static int KNOWN_VERSION = 1;
         public int Version = KNOWN_VERSION;
+        
+        public bool DirectPreviewEnabled = false;
+        
         public string DeviceWifiAddress;
         //public bool DllTraceLogToFile;
         public bool EnablePreviewImage;
