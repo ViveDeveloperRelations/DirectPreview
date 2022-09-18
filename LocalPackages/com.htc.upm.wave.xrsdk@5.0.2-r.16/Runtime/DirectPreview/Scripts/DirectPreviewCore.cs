@@ -14,16 +14,6 @@ namespace Wave.XR.DirectPreview
 {
 	public class DirectPreviewCore
 	{
-		//public enum SIM_InitError
-		//{
-		//	SIM_InitError_None = 0,
-		//	SIM_InitError_WSAStartUp_Failed = 1,
-		//	SIM_InitError_Already_Inited = 2,
-		//	SIM_InitError_Device_Not_Found = 3,
-		//	SIM_InitError_Can_Not_Connect_Server = 4,
-		//	SIM_InitError_IPAddress_Null = 5,
-		//}
-
 		public enum SIM_ConnectType
 		{
 			SIM_ConnectType_USB = 0,
@@ -64,51 +54,7 @@ namespace Wave.XR.DirectPreview
 		static bool saveImage = false;
 		static int connectType = 0;  // USB
 
-		//[DllImport("wvr_plugins_directpreview", EntryPoint = "WVR_SetRenderImageHandles")]
-		//public static extern bool WVR_SetRenderImageHandles(IntPtr[] ttPtr);
 
-		//[DllImport("wvr_plugins_directpreview", EntryPoint = "WVR_Print")]
-		//public static extern void WVR_Print(string msg);
-
-		//public delegate void debugcallback(int l, string z);
-
-		//[DllImport("wvrunityxr", EntryPoint = "SetPrintCallback")]
-		//public static extern void RegisterDebugCallback(debugcallback callback);
-
-		//class PrintClass
-		//{
-
-		//}
-
-
-		//public static void PrintLog(int l, string msg)
-		//{
-		//	switch (l)
-		//	{
-		//		case 0: // error
-		//			UnityEngine.Debug.LogError(msg);
-		//			break;
-		//		case 1: // assert
-		//			UnityEngine.Debug.LogAssertion(msg);
-		//			break;
-		//		case 2: // warning
-		//			UnityEngine.Debug.LogWarning(msg);
-		//			break;
-		//		case 3: // log
-		//			UnityEngine.Debug.Log(msg);
-		//			break;
-		//		case 4: // exception
-		//			UnityEngine.Debug.LogError(msg);
-		//			break;
-		//		case 5:
-		//			UnityEngine.Debug.Log(msg);
-		//			break;
-		//		default:
-		//			UnityEngine.Debug.Log(msg);
-		//			break;
-		//	}
-		//}
-		//PrintClass pc;
 
 		[InitializeOnEnterPlayMode]
 		static void OnEnterPlayModeMethod(EnterPlayModeOptions options)
@@ -176,150 +122,6 @@ namespace Wave.XR.DirectPreview
 			}
 		}
 
-		//public static long getCurrentTimeMillis()
-		//{
-		//	DateTime Jan1st1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-		//	return (long)((DateTime.UtcNow - Jan1st1970).TotalMilliseconds);
-		//}
-
-		//public static void OnPostRender(Camera cam)
-		//{
-		//	//bool isSinglePass = !displaySubsystem.singlePassRenderingDisabled;
-		//	//WVR_Print("Print from DP - OnPostRender");
-
-		//	//DisplaySubsystem.
-
-		//	if (cam.tag.Equals("MainCamera"))
-		//	{
-		//		//RenderTexture rt = cam.activeTexture;
-		//		//IntPtr nTexture = IntPtr.Zero;
-
-		//		//if (rt != null)
-		//		//{
-		//		//	nTexture = rt.GetNativeTexturePtr();
-		//		////	rt.graphicsFormat
-
-
-		//		//	PrintDebug(cam.tag + " OnPostRender: " + nTexture + " : " + cam.stereoActiveEye +":" + rt.graphicsFormat + ":" + rt.width + ":" + rt.height);
-		//		//}
-		//		//IntPtr firstPtr = GetFirstEyePtr();
-		//		//IntPtr SecondPtr = GetSecondEyePtr();
-		//		//PrintDebug(" OnPostRender - 1st: " + firstPtr.ToString() + " 2nd: " + SecondPtr.ToString());
-
-		//		if (!isLeftReady && cam.stereoActiveEye == Camera.MonoOrStereoscopicEye.Left)//eye == WVR_Eye.WVR_Eye_Left)
-		//		{
-		//			//rt_L =  cam.activeTexture ; //wvrCamera.GetCamera().targetTexture;
-
-		//			//cam.text
-
-		//			//if (rt_L != null)
-		//			{
-		//				//rt[0] = firstPtr;// rt_L.GetNativeTexturePtr();
-		//				UnityEngine.Debug.LogWarning("rt[0] : " + rt[0]);
-		//				isLeftReady = true;
-		//				lastUpdateTime = 0;
-		//			}
-		//			//else
-		//			//{
-		//			//	UnityEngine.Debug.LogWarning("rt_L == null");
-		//			//}
-		//		}
-
-		//		if (!isRightReady && cam.stereoActiveEye == Camera.MonoOrStereoscopicEye.Right)//eye == WVR_Eye.WVR_Eye_Right)
-		//		{
-		//			//rt_R = cam.activeTexture;
-
-		//			//if (rt_R != null)
-		//			{
-		//				//rt[1] = SecondPtr;// rt_R.GetNativeTexturePtr();
-
-		//				UnityEngine.Debug.LogWarning("rt[1] : " + rt[1]);
-		//				isRightReady = true;
-		//				lastUpdateTime = 0;
-		//			}
-		//			//else
-		//			//{
-		//			//	UnityEngine.Debug.LogWarning("rt_R == null");
-		//			//}
-		//		}
-
-		//		if (isLeftReady && isRightReady)
-		//		{
-		//			if (mFPS == 0)
-		//			{
-		//				if (Application.targetFrameRate > 0 && Application.targetFrameRate < 99)
-		//				{
-		//					mFPS = Application.targetFrameRate;
-		//				}
-		//				else
-		//				{
-		//					mFPS = 75;
-		//				}
-		//				UnityEngine.Debug.LogWarning("mFPS is changed to " + mFPS);
-		//			}
-
-		//			long currentTime = getCurrentTimeMillis();
-		//			if (currentTime - lastUpdateTime >= (1000 / mFPS))
-		//			{
-		//				if (cam.stereoActiveEye == Camera.MonoOrStereoscopicEye.Left)
-		//				{
-		//					//var height = wvrCamera.GetCamera().targetTexture.height;
-		//					//if ((height % 2) != 0)
-		//					//{
-		//					//	UnityEngine.Debug.LogWarning("RenderTexture height is odd, skip.");
-		//					//	return;
-		//					//}
-
-		//					//var l1 = cam.activeTexture.GetNativeTexturePtr();
-		//					//if (l1 != rt[0])
-		//					//{
-		//					//	UnityEngine.Debug.LogWarning("left native pointer changed");
-		//					//	isLeftReady = false;
-		//					//	isRightReady = false;
-		//					//	return;
-		//					//}
-		//					leftCall = true;
-		//				}
-
-		//				if (cam.stereoActiveEye == Camera.MonoOrStereoscopicEye.Right)
-		//				{
-		//					//var height = wvrCamera.GetCamera().targetTexture.height;
-		//					//if ((height % 2) != 0)
-		//					//{
-		//					//	UnityEngine.Debug.LogWarning("RenderTexture height is odd, skip.");
-		//					//	return;
-		//					//}
-
-		//					//var r1 = cam.activeTexture.GetNativeTexturePtr();
-		//					//if (r1 != rt[1])
-		//					//{
-		//					//	UnityEngine.Debug.LogWarning("right native pointer changed");
-		//					//	isLeftReady = false;
-		//					//	isRightReady = false;
-		//					//	return;
-		//					//}
-		//					rightCall = true;
-		//				}
-
-		//				if (leftCall && rightCall)
-		//				{
-		//					lastUpdateTime = currentTime;
-		//					if (WVR_SetRenderImageHandles(rt))
-		//					{
-		//						// Debug.LogWarning("callback successfully");
-		//					}
-		//					else
-		//					{
-		//						UnityEngine.Debug.LogWarning("" +
-		//							"callback fail");
-		//					}
-		//					leftCall = false;
-		//					rightCall = false;
-		//				}
-		//			}
-		//		}
-		//	}
-		//}
 
 		private static void PrintError(string msg)
 		{
