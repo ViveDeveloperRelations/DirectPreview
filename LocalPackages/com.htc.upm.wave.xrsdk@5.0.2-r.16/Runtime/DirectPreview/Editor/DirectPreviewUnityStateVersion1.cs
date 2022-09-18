@@ -78,15 +78,24 @@ namespace Wave.XR.DirectPreview.Editor
             public static FPSOption DefaultOption => new FPSOption(){FPSOptionInt = FPS_Pairs[0].Item1};
             public static int[] FPS_Serialized_Int_Values => FPS_Pairs.Select((pair) => pair.Item1).ToArray();
             public static string[] FPS_Printable_Names => FPS_Pairs.Select((pair) => pair.Item2).ToArray();
+            public static string RUNTIME_DEFINED_FPS_NAME = "Runtime Defined"; //code smell: maybe this should be an enum with a utility to print them
             public static Tuple<int, string>[] FPS_Pairs = new Tuple<int, string>[]
             {
-                new(0, "Runtime Defined"),
+                new(0, RUNTIME_DEFINED_FPS_NAME),
                 new(15,"15 FPS"),
                 new(30,"30 FPS"),
                 new(45,"45 FPS"),
                 new(60,"60 FPS"),
                 new(75,"75 FPS"),
             };
+            public static Tuple<int,string> LookupFromInt(int fpsInt)
+            {
+                return FPS_Pairs.FirstOrDefault((pair) => pair.Item1 == fpsInt);
+            }
+            public static Tuple<int,string> LookupFromName(string fpsName)
+            {
+                return FPS_Pairs.FirstOrDefault((pair) => pair.Item2 == fpsName);
+            }
             public string GetPrintableRatio()
             {
                 return FPS_Pairs.FirstOrDefault((option) => option.Item1 == FPSOptionInt)?.Item2;
