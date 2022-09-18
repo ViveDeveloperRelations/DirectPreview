@@ -432,8 +432,10 @@ namespace Wave.XR.BuildCheck
 			var androidXRMSettings = androidGenericSettings.AssignedSettings;
 			if (androidXRMSettings == null)
 				return false;
-
+#pragma warning disable 618
 			var loaders = androidXRMSettings.loaders;
+#pragma warning restore 618
+			
 			foreach (var loader in loaders)
 			{
 				if (loader.GetType() == typeof(WaveXRLoader))
