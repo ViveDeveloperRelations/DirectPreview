@@ -1,4 +1,4 @@
-
+#if false
 // "WaveVR SDK 
 // © 2017 HTC Corporation. All Rights Reserved.
 //
@@ -409,3 +409,5 @@ namespace Wave.XR.DirectPreview.Editor
 	}
 }
 #endif
+
+#endif //false
