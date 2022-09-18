@@ -48,6 +48,16 @@ namespace Wave.XR.DirectPreview.Editor
                     "Suggest to use 5G Wi-Fi to get better performance.", GUILayout.Height(40));
 					
 	        m_DirectPreviewState.DeviceWifiAddress = EditorGUILayout.TextField("Device Wi-Fi IP: ", m_DirectPreviewState.DeviceWifiAddress);
+	        if(GUILayout.Button("Test reachability of headset"))
+	        {
+		        bool canReach = false;
+		        try
+		        {
+			        //canReach = DirectPreviewhelper.PingHost("google.com");
+			        canReach = DirectPreviewHelper.PingHost(m_DirectPreviewState.DeviceWifiAddress);
+		        }catch{Debug.Log("PingHost exception");}
+		        ShowNotification(new GUIContent(canReach ? "Reachable" : "Not reachable"));
+	        }
 
 	        //m_DirectPreviewState.DllTraceLogToFile = EditorGUI.Toggle(new Rect(0, 100, position.width, 20), "Save log to file", m_DirectPreviewState.DllTraceLogToFile);
 
@@ -162,7 +172,7 @@ namespace Wave.XR.DirectPreview.Editor
 
 				if (!EditorPrefs.GetBool(CheckIfSimulatorEnabled2.DIRECT_PREVIEW_CONTROL_PANEL_MENU_NAME))
 				{
-                    DirectPreviewControlPanel window = (DirectPreviewControlPanel)EditorWindow.GetWindow<DirectPreviewControlPanel>("DirectPreview");
+					DirectPreviewControlPanel2 window = (DirectPreviewControlPanel2)EditorWindow.GetWindow<DirectPreviewControlPanel2>("DirectPreview");
 					window.Show();
                     EditorPrefs.SetBool(CheckIfSimulatorEnabled2.DIRECT_PREVIEW_CONTROL_PANEL_MENU_NAME, true);
 				}
