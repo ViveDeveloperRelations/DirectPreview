@@ -26,78 +26,6 @@ namespace Wave.XR.DirectPreview
 		static long lastUpdateTime = 0;
 		int frame = 0;
 		new Camera camera;
-		//[DllImport("wvr_plugins_directpreview", EntryPoint = "WVR_Quit_S")]
-		//public static extern void WVR_Quit_S();
-
-		//public delegate void debugcallback(int l, string z);
-		//[DllImport("wvrunityxr", EntryPoint = "SetPrintCallback")]
-		//public static extern void RegisterDebugCallback(debugcallback callback);
-
-		//[DllImport("wvrunityxr", EntryPoint = "GetFirstEyePtr")]
-		//public static extern IntPtr GetFirstEyePtr();
-
-		//[DllImport("wvrunityxr", EntryPoint = "GetSecondEyePtr")]
-		//public static extern IntPtr GetSecondEyePtr();
-
-		//public static void PrintLog(int l, string msg)
-		//{
-		//	switch (l)
-		//	{
-		//		case 0: // error
-		//			UnityEngine.Debug.LogError(msg);
-		//			break;
-		//		case 1: // assert
-		//			UnityEngine.Debug.LogAssertion(msg);
-		//			break;
-		//		case 2: // warning
-		//			UnityEngine.Debug.LogWarning(msg);
-		//			break;
-		//		case 3: // log
-		//			UnityEngine.Debug.Log(msg);
-		//			break;
-		//		case 4: // exception
-		//			UnityEngine.Debug.LogError(msg);
-		//			break;
-		//		case 5:
-		//			UnityEngine.Debug.Log(msg);
-		//			break;
-		//		default:
-		//			UnityEngine.Debug.Log(msg);
-		//			break;
-		//	}
-
-		//}
-
-		//public enum SIM_InitError
-		//{
-		//	SIM_InitError_None = 0,
-		//	SIM_InitError_WSAStartUp_Failed = 1,
-		//	SIM_InitError_Already_Inited = 2,
-		//	SIM_InitError_Device_Not_Found = 3,
-		//	SIM_InitError_Can_Not_Connect_Server = 4,
-		//	SIM_InitError_IPAddress_Null = 5,
-		//}
-
-		//public enum SIM_ConnectType
-		//{
-		//	SIM_ConnectType_USB = 0,
-		//	SIM_ConnectType_Wifi = 1,
-		//}
-
-		//[DllImport("wvr_plugins_directpreview", EntryPoint = "WVR_Init_S")]
-		//public static extern SIM_InitError WVR_Init_S(int a, System.IntPtr ip, bool enablePreview, bool saveLogToFile, bool saveImage);
-
-
-		//bool enablePreview = false;
-		//static bool saveLog = false;
-		//static bool saveImage = false;
-		//static int connectType = 0;  // USB
-
-
-		//public delegate void printcallback(string z);
-
-		//[DllImport("wvr_plugins_directpreview", EntryPoint = "WVR_SetPrintCallback")]
-		//public static extern void WVR_SetPrintCallback_S(printcallback callback);
 
 		public static long getCurrentTimeMillis()
 		{
@@ -138,14 +66,7 @@ namespace Wave.XR.DirectPreview
 		private void Update()
 		{
 			frame++;
-			//PrintDebug("update: " + frame);
 		}
-
-		//public void OnPostRender(Camera cam)
-		//{
-		//	Debug.Log(" native ptr: " + cam.activeTexture.GetNativeTexturePtr());
-		//}
-
 
 
 	void OnRenderImage(RenderTexture src, RenderTexture dest)
