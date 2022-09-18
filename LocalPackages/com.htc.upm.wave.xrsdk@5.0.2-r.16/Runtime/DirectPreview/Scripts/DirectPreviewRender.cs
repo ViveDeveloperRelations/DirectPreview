@@ -8,6 +8,7 @@ using UnityEngine;
 #if UNITY_EDITOR && UNITY_ANDROID
 namespace Wave.XR.DirectPreview
 {
+	[DisallowMultipleComponent]
 	public class DirectPreviewRender : MonoBehaviour
 	{
 		private static string TAG = "DirectPreviewRender:";

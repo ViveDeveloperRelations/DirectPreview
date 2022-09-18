@@ -122,7 +122,16 @@ namespace Wave.XR.DirectPreview
 			if (EnableDirectPreview && (connectType == 1) && tPreview)
 			{
 				PrintDebug("OnSceneLoaded() call WVR_PostInit()");
-				Camera.main.gameObject.AddComponent<DirectPreviewRender>();
+				//FIXME: assumes there's a camera.main on scene load, sometimes this is loaded later and/or swapped out at runtime. also multiple scene loads could cause multple attaches
+				var camera = Camera.main;
+				if(camera != null)
+				{
+					if(camera.gameObject.GetComponent<DirectPreviewRender>() == null)
+					{
+						camera.gameObject.AddComponent<DirectPreviewRender>();
+					}
+					var directPreviewRenderer = camera.gameObject.AddComponent<DirectPreviewRender>();
+				}
 			}
 		}
 
