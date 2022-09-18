@@ -33,16 +33,6 @@ namespace Wave.XR.DirectPreview
 		[DllImport("wvrunityxr", EntryPoint = "EnableDP")]
 		public static extern void EnableDP(bool enable, SIM_ConnectType type, IntPtr addr, bool preview, bool printLog, bool saveImage);
 
-		//[DllImport("wvr_plugins_directpreview", EntryPoint = "WVR_Quit_S")]
-		//public static extern void WVR_Quit_S();
-
-		//[DllImport("wvrunityxr", EntryPoint = "GetFirstEyePtr")]
-		//public static extern IntPtr GetFirstEyePtr();
-
-		//[DllImport("wvrunityxr", EntryPoint = "GetSecondEyePtr")]
-		//public static extern IntPtr GetSecondEyePtr();
-
-		//private static string TAG = "DirectPreviewCore:";
 		public static bool EnableDirectPreview = false;
 		private static Camera camera = null;
 
@@ -108,14 +98,6 @@ namespace Wave.XR.DirectPreview
 			{
 				PrintDebug("Register direct preview print callback");
 				WVR_SetPrintCallback_S(PrintLog);
-
-				//if (connectType == 1)
-				//{
-				//	if (dpServerProcessChecker())
-				//		UnityEngine.Debug.Log("dpServer.exe is running in task list.");
-				//	else
-				//		UnityEngine.Debug.LogWarning("There's no dpServer.exe running in task list.");
-				//}
 
 				EnableDP(true, (SIM_ConnectType)connectType, ptrIPaddr, tPreview, saveLog, saveImage);
 				PrintDebug("Enable Direct Preview: " + true + ", connection: " + connectType + ", IP: " + ipaddr + ", preview: " + tPreview + ", log: " + saveLog + ", image: " + saveImage);
