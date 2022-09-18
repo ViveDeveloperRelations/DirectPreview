@@ -8,6 +8,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.XR;
+using Wave.XR.DirectPreview.Editor;
 
 #if UNITY_EDITOR && UNITY_ANDROID
 namespace Wave.XR.DirectPreview
@@ -37,9 +38,6 @@ namespace Wave.XR.DirectPreview
 		private static Camera camera = null;
 
 		private static string LOG_TAG = "DirectPreviewCore";
-		static string wifi_ip_tmp;
-		static string wifi_ip_state = "";
-		bool enablePreview = false;
 		static bool saveLog = false;
 		static bool saveImage = false;
 		static int connectType = 0;  // USB
@@ -84,9 +82,11 @@ namespace Wave.XR.DirectPreview
 
 		public static void DP_Init()
 		{
-			EnableDirectPreview = EditorPrefs.GetBool("Wave/DirectPreview/EnableDirectPreview", false);
+			EnableDirectPreview = EditorPrefs.GetBool("Wave/DirectPreview/EnableDirectPreview", false); // Should this be per-project and per-user? or per-user only?
 			
-			wifi_ip_state = EditorPrefs.GetString("wifi_ip_state");
+			var dpSerializedState = DirectPreviewUnityStateStore.DeserializeDirectPreviewUnityStateVersionOrDefault();
+
+			string wifi_ip_state = dpSerializedState.DeviceWifiAddress;
 			bool tPreview = EditorPrefs.GetBool("EnablePreviewImage", true);
 			saveLog = EditorPrefs.GetBool("DllTraceLogToFile", false);
 			saveImage = EditorPrefs.GetBool("OutputImagesToFile", false);
@@ -98,7 +98,8 @@ namespace Wave.XR.DirectPreview
 			{
 				PrintDebug("Register direct preview print callback");
 				WVR_SetPrintCallback_S(PrintLog);
-
+				//TODO: re-call EnableDP when the state options change
+				//TODO: find out if this needs to be called across assembly reloads or on init
 				EnableDP(true, (SIM_ConnectType)connectType, ptrIPaddr, tPreview, saveLog, saveImage);
 				PrintDebug("Enable Direct Preview: " + true + ", connection: " + connectType + ", IP: " + ipaddr + ", preview: " + tPreview + ", log: " + saveLog + ", image: " + saveImage);
 			}
