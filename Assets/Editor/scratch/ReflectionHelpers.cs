@@ -31,6 +31,15 @@ namespace DirectPreview.Utility
             var field = GetFieldFromType(type, fieldName, flags);
             field.SetValue(obj, value);
         }
+
+        public static object GetPublicField(object obj, string fieldName)
+        {
+            return GetField(obj, fieldName, BindingFlags.Public | BindingFlags.Instance);
+        }
+        public static void SetPublicField(object obj, string fieldName, object value)
+        {
+            SetField(obj, fieldName, BindingFlags.Public | BindingFlags.Instance, value);
+        }
         public static void SetPrivateField(object obj, string fieldName, object value)
         {
             SetField(obj, fieldName, BindingFlags.NonPublic | BindingFlags.Instance, value);

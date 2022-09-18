@@ -18,7 +18,11 @@ namespace DirectPreview.Utility
         }
         
 #region Fields
-        public void SetPrivateField(string fieldName, object value)
+        public object GetPublicField(string fieldName)
+        {
+            return ReflectionHelpers.GetPublicField(Instance, fieldName);
+        }
+        public void SetPublicField(string fieldName, object value)
         {
             ReflectionHelpers.SetPrivateField(Instance, fieldName, value);
         }
@@ -41,7 +45,7 @@ namespace DirectPreview.Utility
 
 #region Properties
 
-        public object GetPublicPropertyObject(object obj, string propertyName)
+        public object GetPublicPropertyObject(string propertyName)
         {
             return ReflectionHelpers.GetPublicPropertyObject(Instance, propertyName);
         }
@@ -68,10 +72,15 @@ namespace DirectPreview.Utility
         {
             return ReflectionHelpers.InvokePrivateStaticMethod(m_Type, methodName, args);    
         }
+        public object InvokePrivateMethod(string methodName, params object[] args)
+        {
+            return ReflectionHelpers.InvokePrivateMethod(Instance,methodName, args);
+        }
         public object InvokePublicMethod(string methodName, params object[] args)
         {
             return ReflectionHelpers.InvokePublicMethod(Instance,methodName, args);
         }
+        
         public void InvokePublicMethodVoidReturn(string methodName, params object[] args)
         {
             ReflectionHelpers.InvokePublicMethodVoidReturn(Instance, methodName, args);
