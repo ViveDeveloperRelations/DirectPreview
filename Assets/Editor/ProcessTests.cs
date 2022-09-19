@@ -117,10 +117,18 @@ public class ProcessTests
             Debug.Log("ping is running somewhere");
         if (pingCommandID != 0)
         {
-            var potentialProcess = Process.GetProcessById(pingCommandID);
-            Debug.Log($"ping has exited {potentialProcess.HasExited}");
-            if(potentialProcess.HasExited)
+            try
+            {
+                var potentialProcess = Process.GetProcessById(pingCommandID);
+                Debug.Log($"ping has exited {potentialProcess.HasExited}");
+                if (potentialProcess.HasExited)
+                    SessionState.SetInt("PingCommandID", 0);
+
+            }
+            catch(ArgumentException) //GetProcessById throws "ArgumentException: Can't find process with ID 198528"
+            {
                 SessionState.SetInt("PingCommandID", 0);
+            }
         }
         ProcessStartInfo startInfo = new ProcessStartInfo()
         {
