@@ -20,7 +20,7 @@ public class PingExample
         Debug.Log(ping.time);
     }
 
-    [MenuItem("Tests/Ping Examples")]
+    //[MenuItem("Tests/Ping Examples")]
     static void PingExamples()
     {
         var addressesToPing = new[] {"google.com", "invalid"};
