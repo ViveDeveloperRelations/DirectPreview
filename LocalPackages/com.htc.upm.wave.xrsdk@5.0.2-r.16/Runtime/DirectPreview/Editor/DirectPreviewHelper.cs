@@ -46,7 +46,6 @@ public class DirectPreviewHelper
 
     private static UniqueNamedProcessPerUnityRun RemoteRenderingServer()
     {
-        
         var rr_path = Path.GetFullPath("Packages/com.htc.upm.wave.xrsdk/Runtime/DirectPreview/Binary");
         var rr_exe = Path.Combine(rr_path, "dpServer.exe");
         if(!File.Exists(rr_exe))
@@ -60,7 +59,7 @@ public class DirectPreviewHelper
             FileName = rr_exe,
             UseShellExecute = false,
             WorkingDirectory = rr_path,
-            CreateNoWindow = false,
+            CreateNoWindow = true,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             RedirectStandardInput = false,
