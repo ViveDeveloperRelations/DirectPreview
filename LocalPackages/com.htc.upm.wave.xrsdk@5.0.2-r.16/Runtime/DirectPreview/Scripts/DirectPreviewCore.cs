@@ -37,10 +37,6 @@ namespace Wave.XR.DirectPreview
 		public static bool EnableDirectPreview = false;
 
 		private static string LOG_TAG = "DirectPreviewCore";
-		static bool saveLog = false;
-		static bool saveImage = false;
-		static int connectType = 0;  // USB
-
 
 
 		[InitializeOnEnterPlayMode]
@@ -79,17 +75,14 @@ namespace Wave.XR.DirectPreview
 			}
 			return flag;
 		}
-
+		
 		public static void DP_Init()
 		{
-			var dpSerializedState = DirectPreviewUnityStateStore.DeserializeDirectPreviewUnityStateVersionOrDefault();
-			EnableDirectPreview = dpSerializedState.DirectPreviewEnabled; // Should this be per-project and per-user? or per-user only?
+			var dpState = DirectPreviewUnityStateStore.DeserializeDirectPreviewUnityStateVersionOrDefault();
+			EnableDirectPreview = dpState.DirectPreviewEnabled; // Should this be per-project and per-user? or per-user only?
 
-			string wifi_ip_state = dpSerializedState.DeviceWifiAddress;
-			bool tPreview = EditorPrefs.GetBool("EnablePreviewImage", true);
-			saveLog = EditorPrefs.GetBool("DllTraceLogToFile", false);
-			saveImage = EditorPrefs.GetBool("OutputImagesToFile", false);
-			connectType = EditorPrefs.GetInt("ConnectType", 1);
+			string wifi_ip_state = dpState.DeviceWifiAddress;
+
 			string ipaddr = wifi_ip_state;
 			System.IntPtr ptrIPaddr = Marshal.StringToHGlobalAnsi(ipaddr);
 
@@ -99,8 +92,8 @@ namespace Wave.XR.DirectPreview
 				WVR_SetPrintCallback_S(PrintLog);
 				//TODO: re-call EnableDP when the state options change
 				//TODO: find out if this needs to be called across assembly reloads or on init
-				EnableDP(true, (SIM_ConnectType)connectType, ptrIPaddr, tPreview, saveLog, saveImage);
-				PrintDebug("Enable Direct Preview: " + true + ", connection: " + connectType + ", IP: " + ipaddr + ", preview: " + tPreview + ", log: " + saveLog + ", image: " + saveImage);
+				EnableDP(true, (SIM_ConnectType)dpState.ConnectType, ptrIPaddr, dpState.EnablePreviewImage, false /*dpSerializedState.DllTraceLogToFile */, dpState.OutputImageToFile);
+				PrintDebug("Enable Direct Preview: " + true + ", connection: " + dpState.ConnectType + ", IP: " + ipaddr + ", preview: " + dpState.EnablePreviewImage + ", log: " + false + ", image: " + dpState.OutputImageToFile);
 			}
 		}
 
@@ -118,10 +111,21 @@ namespace Wave.XR.DirectPreview
 		static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
 		{
 			PrintDebug("OnSceneLoaded() " + scene.name);
+			var directPreviewState = DirectPreviewUnityStateStore.DeserializeDirectPreviewUnityStateVersionOrDefault();
 			bool tPreview = EditorPrefs.GetBool("EnablePreviewImage");
-			if (EnableDirectPreview && (connectType == 1) && tPreview)
+			if (EnableDirectPreview && (directPreviewState.ConnectType == DirectPreviewUnityStateVersion1.ConnectTypeEnum.WIFI) && tPreview) //why would we not want to preview ever?
 			{
+				/*
+				EditorApplication.delayCall += () =>
+				{
+					PrintDebug("OnSceneLoaded() delayCall"); 
+					
+				};
+				*/
 				PrintDebug("OnSceneLoaded() call WVR_PostInit()");
+				
+				DirectPreviewHelper.StartDirectPreview(directPreviewState);
+				
 				//FIXME: assumes there's a camera.main on scene load, sometimes this is loaded later and/or swapped out at runtime. also multiple scene loads could cause multple attaches
 				var camera = Camera.main;
 				if (camera != null)

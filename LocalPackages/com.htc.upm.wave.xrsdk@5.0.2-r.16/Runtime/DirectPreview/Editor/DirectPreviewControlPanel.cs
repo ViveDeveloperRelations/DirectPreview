@@ -33,6 +33,15 @@ namespace Wave.XR.DirectPreview.Editor
             DirectPreviewUnityStateStore.Store(m_DirectPreviewState);
         }
 
+        public static bool HeadsetReachable(string wifiAddress)
+        {
+            bool canReach = false;
+            try
+            {
+                canReach = DirectPreviewHelper.PingHost( wifiAddress);
+            }catch{Debug.Log("PingHost exception");}
+            return canReach;
+        }
         private string lastKnownHeadsetIP = "";
         void ShowWifiGUI()
         {
@@ -42,11 +51,7 @@ namespace Wave.XR.DirectPreview.Editor
             m_DirectPreviewState.DeviceWifiAddress = EditorGUILayout.TextField("Device Wi-Fi IP: ", m_DirectPreviewState.DeviceWifiAddress).Trim();
             if(GUILayout.Button("Test reachability of headset"))
             {
-                bool canReach = false;
-                try
-                {
-                    canReach = DirectPreviewHelper.PingHost( m_DirectPreviewState.DeviceWifiAddress);
-                }catch{Debug.Log("PingHost exception");}
+                bool canReach = HeadsetReachable(m_DirectPreviewState.DeviceWifiAddress);
                 ShowNotification(new GUIContent(canReach ? "Reachable" : "Not reachable"));
             }
             if(GUILayout.Button("Get IP from headset (if possible)"))

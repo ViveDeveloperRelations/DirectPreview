@@ -72,12 +72,23 @@ public class DirectPreviewHelper
         ;
     }
 
-    delegate string AdbRunDelegate(string command, string errorMessage, bool throwOnFail);
-
+    private static string AdbRunCommand(AdbFacade adbFacade,string command, string errorMessage, bool throwOnFail)
+    {
+        try
+        {
+            return adbFacade.Run(new[] {command}, errorMessage);
+        }
+        catch
+        {
+            Debug.Log($"{command} failed");
+            if (throwOnFail) throw;
+            return string.Empty;
+        }
+    }
     [MenuItem("FOOBAR/TESTSTART")]
     private static void InstallAndStartAPK()
     {
-        const string apkPackageName = "com.htc.vr.directpreview.agent.unity";
+        
         var absolutePath =
             Path.GetFullPath(
                 "Packages/com.htc.upm.wave.xrsdk/Runtime/DirectPreview/Binary/wvr_plugins_directpreview_agent_unity.apk");
@@ -85,39 +96,17 @@ public class DirectPreviewHelper
         ADBWrapper.AdbReflectionSetup adbReflection = new ADBWrapper.AdbReflectionSetup();
         var adbFacade = adbReflection.AdbFacade;
 
-        var canFailShutdownCommands = new[]
-        {
-            $"shell am force-stop {apkPackageName}",
-            $"shell am kill {apkPackageName}", //
-            $"shell am broadcast -a {apkPackageName}.SHUTDOWN", //double check fails - StopSimulatorInner2
-            $"uninstall {apkPackageName}",
-        };
+        
         var commands = new[]
         {
             $"install -r -g -d \"{absolutePath}\"",
             $"shell am start -n com.htc.vr.directpreview.agent.unity/com.vive.rrclient.RRClient"
         };
-        AdbRunDelegate runCommand = (string command, string errorMessage, bool throwOnFail) =>
-        {
-            try
-            {
-                return adbFacade.Run(new[] {command}, errorMessage);
-            }
-            catch
-            {
-                Debug.Log($"{command} failed");
-                if (throwOnFail) throw;
-                return string.Empty;
-            }
-        };
-        foreach (var canFailShutdownCommand in canFailShutdownCommands)
-        {
-            runCommand(canFailShutdownCommand, "", false);
-        }
+        
 
         foreach (var startupCommand in commands)
         {
-            runCommand(startupCommand, "Failed to run command to start remote rendering" + startupCommand, true);
+            AdbRunCommand(adbFacade,startupCommand, "Failed to run command to start remote rendering" + startupCommand, true);
         }
 
         //adb shell am force-stop com.htc.vr.directpreview.agent.unity
@@ -127,6 +116,24 @@ public class DirectPreviewHelper
         //var absolutePath = Path.GetFullPath("Packages/com.htc.upm.wave.xrsdk/Runtime/DirectPreview/Binary/wvr_plugins_directpreview_agent_unity.apk");
         //adb install -r -g \"" + absolutePath + "\""
         //adb shell am start -n com.htc.vr.directpreview.agent.unity/com.vive.rrclient.RRClient
+    }
+
+    private static void StopAndUninstallOldAPK()
+    {
+        ADBWrapper.AdbReflectionSetup adbReflection = new ADBWrapper.AdbReflectionSetup();
+        var adbFacade = adbReflection.AdbFacade;
+        const string apkPackageName = "com.htc.vr.directpreview.agent.unity";
+        var canFailShutdownCommands = new[]
+        {
+            $"shell am force-stop {apkPackageName}",
+            $"shell am kill {apkPackageName}", //
+            $"shell am broadcast -a {apkPackageName}.SHUTDOWN", //double check fails - StopSimulatorInner2
+            $"uninstall {apkPackageName}",
+        };
+        foreach (var canFailShutdownCommand in canFailShutdownCommands)
+        {
+            AdbRunCommand(adbFacade,canFailShutdownCommand, "", false);
+        }
     }
 
     private static string DeviceIPAddress()
@@ -139,6 +146,9 @@ public class DirectPreviewHelper
     }
     public static void StartDirectPreview(DirectPreviewUnityStateVersion1 directPreviewState)
     {
+        StopAndUninstallOldAPK();
+
+        
         if (directPreviewState.ConnectType == DirectPreviewUnityStateVersion1.ConnectTypeEnum.WIFI)
         {
             var deviceIPAddress = DeviceIPAddress();
@@ -159,7 +169,7 @@ public class DirectPreviewHelper
         
         //TODO: test that the ports can be acquired at all and look for failure states
         var rr_server = RemoteRenderingServer();
-        rr_server.Stop();
+        //rr_server.Stop();
         rr_server.Start();
         
         InstallAndStartAPK(); //todo: try catch with an editor popup dialog with information on failure
