@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net.NetworkInformation;
+using Editor;
 using UnityEditor;
 using Wave.XR.DirectPreview.Editor;
 using Debug = UnityEngine.Debug;
@@ -66,12 +67,63 @@ public class DirectPreviewHelper
         };
         return new UniqueNamedProcessPerUnityRun("REMOTE_RENDERING_SERVER",startInfo);;
     }
+    [MenuItem("FOOBAR/TESTSTART")]
+    private static void InstallAndStartAPK()
+    {
+        const string apkPackageName = "com.htc.vr.directpreview.agent.unity";
+        var absolutePath = Path.GetFullPath("Packages/com.htc.upm.wave.xrsdk/Runtime/DirectPreview/Binary/wvr_plugins_directpreview_agent_unity.apk");
+        if(!File.Exists(absolutePath)) throw new Exception("DirectPreview agent apk not found");
+        ADBWrapper.AdbReflectionSetup adbReflection = new ADBWrapper.AdbReflectionSetup();
+        var adbFacade = adbReflection.AdbFacade;
+        
+        
+        var canFailShutdownCommands = new[]
+        {
+            $"shell am force-stop {apkPackageName}",
+            $"shell am kill {apkPackageName}", //
+            $"shell am broadcast -a {apkPackageName}.SHUTDOWN", //double check fails - StopSimulatorInner2
+            $"uninstall {apkPackageName}",
+        };
+        var commands = new[]
+        {
+            $"install -r -g -d \"{absolutePath}\"",
+            $"shell am start -n com.htc.vr.directpreview.agent.unity/com.vive.rrclient.RRClient"
+        };
+        Action<string,string,bool> runCommand = (string command,string errorMessage,bool throwOnFail) => {
+            try
+            {
+                adbFacade.Run(new[] {command}, errorMessage);
+            }
+            catch
+            {
+                Debug.Log($"{command} failed");
+                if(throwOnFail) throw;
+            }
+        };
+        foreach (var canFailShutdownCommand in canFailShutdownCommands)
+        {
+            runCommand(canFailShutdownCommand,"",false);
+        }
+        foreach (var startupCommand in commands)
+        {
+            runCommand(startupCommand,"Failed to run command to start remote rendering"+startupCommand,true);
+        }
+        
+        //adb shell am force-stop com.htc.vr.directpreview.agent.unity
+        //adb shell am kill com.htc.vr.directpreview.agent.unity
+        //adb shell am broadcast -a com.htc.vr.directpreview.agent.SHUTDOWN
+        //uninstall com.htc.vr.directpreview.agent.unity
+        //var absolutePath = Path.GetFullPath("Packages/com.htc.upm.wave.xrsdk/Runtime/DirectPreview/Binary/wvr_plugins_directpreview_agent_unity.apk");
+        //adb install -r -g \"" + absolutePath + "\""
+        //adb shell am start -n com.htc.vr.directpreview.agent.unity/com.vive.rrclient.RRClient
+    }
     
     public static void StartDirectPreview(DirectPreviewUnityStateVersion1 mDirectPreviewState)
     {
         //TODO: test that the ports can be acquired at all and look for failure states
         var rr_server = RemoteRenderingServer();
         rr_server.Start();
+        
     }
     [MenuItem("ffoo/Start")]
     public static void StartTest()

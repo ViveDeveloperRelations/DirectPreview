@@ -12,7 +12,7 @@ namespace Editor
     public class ADBWrapper
     {
         
-        //[MenuItem("FOOBAR/TEST")]
+        [MenuItem("FOOBAR/TEST")]
         public static void SetupAndroidLogcatWithReflection()
         {
             //TODO: should this respond if hte user changes their sdk settings?
@@ -104,6 +104,15 @@ namespace Editor
             var shellCommand = @"""ip addr show wlan0  | grep 'inet ' | cut -d ' ' -f 6 | cut -d / -f 1""";
             var ip = adbFacade.Run(new []{"shell",shellCommand}, "error running get ip");
             Debug.Log($"Headset ip address {ip}");
+        }
+
+        [MenuItem("FOOBAR/Test ADB DeviceCount")]
+        public static void AdbDeviceCount()
+        {
+            AdbReflectionSetup adbReflection = new AdbReflectionSetup();
+
+            var adbFacade = adbReflection.AdbFacade;
+            Debug.Log($"Is one device connected {adbFacade.OneDeviceConnected()}");
         }
 
         public static string GetConnectedHeadsetIP()
