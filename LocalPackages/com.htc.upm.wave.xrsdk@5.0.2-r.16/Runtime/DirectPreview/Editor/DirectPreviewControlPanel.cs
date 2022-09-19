@@ -77,7 +77,10 @@ namespace Wave.XR.DirectPreview.Editor
                     if(GUILayout.Button("Use last known IP"))
                     {
                         UnfocusWindow(); // unfocus from other items, as this can prevent the text field from updating
-                        m_DirectPreviewState.DeviceWifiAddress = lastKnownHeadsetIP;
+                        if (lastKnownHeadsetIP != null)
+                        {
+                            m_DirectPreviewState.DeviceWifiAddress = lastKnownHeadsetIP.Trim();
+                        }
                     }
                 }
                 else

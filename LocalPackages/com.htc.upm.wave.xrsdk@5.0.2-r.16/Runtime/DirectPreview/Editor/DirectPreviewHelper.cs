@@ -154,7 +154,7 @@ public class DirectPreviewHelper
             {
                 DirectPreviewControlPanel window = (DirectPreviewControlPanel)EditorWindow.GetWindow<DirectPreviewControlPanel>("DirectPreview");
                 window.UnfocusWindow(); // unfocus from other items, as this can prevent the ip text field from updating
-                var oldIP = directPreviewState.DeviceWifiAddress ?? "null";
+                var oldIP = directPreviewState.DeviceWifiAddress ?? string.Empty;
                 directPreviewState.DeviceWifiAddress = deviceIPAddress.Trim();
                 Debug.Log("Auto fixed the ip address of the device from " + oldIP + " to " + deviceIPAddress);
                 DirectPreviewUnityStateStore.Store(directPreviewState);
