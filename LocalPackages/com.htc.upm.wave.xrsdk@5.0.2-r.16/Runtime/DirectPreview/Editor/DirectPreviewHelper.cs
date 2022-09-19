@@ -47,7 +47,7 @@ public class DirectPreviewHelper
         return pingable;
     }
 
-    private static UniqueNamedProcessPerUnityRun RemoteRenderingServer()
+    public static UniqueNamedProcessPerUnityRun RemoteRenderingServer()
     {
         var rr_path = Path.GetFullPath("Packages/com.htc.upm.wave.xrsdk/Runtime/DirectPreview/Binary");
         var rr_exe = Path.Combine(rr_path, "dpServer.exe");
@@ -56,8 +56,7 @@ public class DirectPreviewHelper
             UnityEngine.Debug.LogError("DirectPreview server not found");
             throw new Exception("DirectPreview server not found");
         }
-
-        Debug.Log("DirectPreview server found at " + rr_exe);
+        
         ProcessStartInfo startInfo = new ProcessStartInfo()
         {
             FileName = rr_exe,
@@ -66,10 +65,9 @@ public class DirectPreviewHelper
             CreateNoWindow = true,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            RedirectStandardInput = false,
+            RedirectStandardInput = true,
         };
         return new UniqueNamedProcessPerUnityRun("REMOTE_RENDERING_SERVER", startInfo);
-        ;
     }
 
     private static string AdbRunCommand(AdbFacade adbFacade,string command, string errorMessage, bool throwOnFail)
