@@ -9,6 +9,8 @@
 // conditions signed by you and all SDK and API requirements,
 // specifications, and documentation provided by HTC to You."
 
+using System;
+using Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -42,6 +44,7 @@ namespace Wave.XR.DirectPreview.Editor
             DirectPreviewUnityStateStore.Store(m_DirectPreviewState);
         }
 
+        private string lastKnownHeadsetIP = "";
         void ShowWifiGUI()
         {
 	        EditorGUILayout.LabelField("Use Wi-Fi to get data from device and show images on HMD.\n" +
@@ -57,6 +60,34 @@ namespace Wave.XR.DirectPreview.Editor
 			        canReach = DirectPreviewHelper.PingHost(m_DirectPreviewState.DeviceWifiAddress);
 		        }catch{Debug.Log("PingHost exception");}
 		        ShowNotification(new GUIContent(canReach ? "Reachable" : "Not reachable"));
+	        }
+	        if(GUILayout.Button("Get IP from headset (if possible)"))
+	        {
+		        try
+		        {
+			         lastKnownHeadsetIP = ADBWrapper.GetConnectedHeadsetIP();
+		        }
+		        catch (Exception e)
+		        {
+			        Debug.LogException(e);
+			        ShowNotification(new GUIContent("Failed to get IP from headset"));
+		        }
+	        }
+
+	        if (!string.IsNullOrEmpty(lastKnownHeadsetIP))
+	        {
+		        if(lastKnownHeadsetIP != m_DirectPreviewState.DeviceWifiAddress)
+		        {
+			        if(GUILayout.Button("Use last known IP"))
+			        {
+				        GUI.FocusControl(null); // unfocus from other items, as this can prevent the text field from updating
+				        m_DirectPreviewState.DeviceWifiAddress = lastKnownHeadsetIP;
+			        }
+		        }
+		        else
+		        {
+			        GUILayout.Label("Last known IP is the same as current IP");
+		        }
 	        }
 
 	        //m_DirectPreviewState.DllTraceLogToFile = EditorGUI.Toggle(new Rect(0, 100, position.width, 20), "Save log to file", m_DirectPreviewState.DllTraceLogToFile);
