@@ -11,7 +11,9 @@ using Debug = UnityEngine.Debug;
 
 public class ProcessTests
 {
+#if ENABLE_TESTS
     [MenuItem("Tests/Process/Test Run With WorkingDir")]
+#endif
     public static void TestADBDevicesRunFromPath()
     {
         var setup = GetSetup();
@@ -42,6 +44,101 @@ public class ProcessTests
         Debug.Log(outputString);
         outputString = commandWrapper.Run(@"cmd","/c \"dir\"","C:\\\\","Error Running dir");
         Debug.Log(outputString);
+    }
+    /*
+    [MenuItem("Tests/TestInternalProcess Blocking")]
+    public static void TestInternalRunProcess()
+    {
+        var pingCommandID = SessionState.GetInt("PingCommandID", 0);
+        Debug.Log("pingCommandID: " + pingCommandID);
+        //Process.GetProcessesByName("ping").Length == 0
+        if(Process.GetProcessesByName("ping").Length != 0)
+            Debug.Log("ping is running somewhere");
+        if (pingCommandID != 0)
+        {
+            var potentialProcess = Process.GetProcessById(pingCommandID);
+            Debug.Log($"ping has exited {potentialProcess.HasExited}");
+            if(potentialProcess.HasExited)
+                SessionState.SetInt("PingCommandID", 0);
+        }
+            
+        var command = @"ping /n 100 google.com";
+        var commandWrapper = GetSetup().Item1;
+        
+        var outputString = commandWrapper.Run(@"ping","/n 100 google.com","C:\\\\", "Error Running ping");
+        Debug.Log(outputString);
+    }
+    */
+    #if false
+    [MenuItem("Tests/TestInternalProcess NonBlocking")]
+    public static void TestInternalRunProcessNonBlcoking()
+    {
+        var pingCommandID = SessionState.GetInt("PingCommandID", 0);
+        Debug.Log("pingCommandID: " + pingCommandID);
+        //Process.GetProcessesByName("ping").Length == 0
+        if(Process.GetProcessesByName("ping").Length != 0)
+            Debug.Log("ping is running somewhere");
+        if (pingCommandID != 0)
+        {
+            var potentialProcess = Process.GetProcessById(pingCommandID);
+            Debug.Log($"ping has exited {potentialProcess.HasExited}");
+            if(potentialProcess.HasExited)
+                SessionState.SetInt("PingCommandID", 0);
+        }
+        ProcessStartInfo startInfo = new ProcessStartInfo()
+        {
+            FileName = "C:\\Windows\\System32\\cmd.exe",
+            Arguments = "/c \"ping /n 10 google.com\"",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+        
+        var commandWrapper = GetSetup().Item1;
+        CommandWrapper.WaitingForProcessToExit setIdDuringWait = (ProgramWrapper program) =>
+        {
+            SessionState.SetInt("PingCommandID", program.Id());
+        };
+
+        //var outputString = commandWrapper.Run(@"ping","/n 100 google.com","C:\\\\", "Error Running ping");
+        var outputString = commandWrapper.Run(startInfo,setIdDuringWait,"Error Running ping");
+        Debug.Log(outputString);
+    }
+#endif
+
+    [MenuItem("Tests/TestInternalProcess NonBlocking")]
+    public static void TestInternalRunProcessNonBlcoking()
+    {
+        var pingCommandID = SessionState.GetInt("PingCommandID", 0);
+        Debug.Log("pingCommandID: " + pingCommandID);
+        //Process.GetProcessesByName("ping").Length == 0
+        if(Process.GetProcessesByName("ping").Length != 0)
+            Debug.Log("ping is running somewhere");
+        if (pingCommandID != 0)
+        {
+            var potentialProcess = Process.GetProcessById(pingCommandID);
+            Debug.Log($"ping has exited {potentialProcess.HasExited}");
+            if(potentialProcess.HasExited)
+                SessionState.SetInt("PingCommandID", 0);
+        }
+        ProcessStartInfo startInfo = new ProcessStartInfo()
+        {
+            FileName = "C:\\Windows\\System32\\cmd.exe",
+            Arguments = "/c \"ping /n 10 google.com\"",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+        
+        var process = new Process(){StartInfo = startInfo};
+        
+        process.Start();
+        SessionState.SetInt("PingCommandID", process.Id);
+        
+        GC.KeepAlive(process);
+
     }
 #if ENABLE_TESTS
     [MenuItem("Tests/Process/TestADBDevicesRunFromPath")]
