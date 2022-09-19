@@ -95,6 +95,8 @@ public class UniqueNamedProcessPerUnityRun
         
         Process.Start(); //this can throw... letting them propagate for now
         Debug.Log("Started process " + ProcessName + " with id " + Process.Id);
+        Process.BeginOutputReadLine();
+        Process.BeginErrorReadLine();
         
         SetStateInt(Process.Id);
         GC.KeepAlive(Process); //don't dispose of the process if it falls out of scope, we want the process to keep running
