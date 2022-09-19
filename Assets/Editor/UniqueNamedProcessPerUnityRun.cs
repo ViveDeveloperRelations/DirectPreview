@@ -61,7 +61,6 @@ public class UniqueNamedProcessPerUnityRun
             Process = null;
             return INVALID_PROCESS_ID;
         }
-        return INVALID_PROCESS_ID;
     }
 
     public void Start()
@@ -78,7 +77,5 @@ public class UniqueNamedProcessPerUnityRun
         Process.Kill();
         Process = null;
         SetStateInt(INVALID_PROCESS_ID);
-        return;
-
     }
 }
