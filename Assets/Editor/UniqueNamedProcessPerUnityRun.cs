@@ -2,16 +2,20 @@
 using System.Diagnostics;
 using UnityEditor;
 
-public class UniqueNamedProcess
+// Start a new named process or find the existing version of it, between reloads of the appdomain of unity
+//Typically you'll want to use this for processes where shellexecute = false so that the parent process is Unity, and if unity dies/freezes so will the sub-app
+//if something like this is desirable across unity runs, probably would want to use editorprefs instead of sessionstate, but maybe that is just a dependecy that needs to be injected here
+public class UniqueNamedProcessPerUnityRun
 {
     private readonly string ProcessName;
     private readonly ProcessStartInfo StartInfo;
     private Process Process;
 
-    public UniqueNamedProcess(string processName,ProcessStartInfo startInfo)
+    public UniqueNamedProcessPerUnityRun(string processName,ProcessStartInfo startInfo)
     {
         ProcessName = processName;
         StartInfo = startInfo;
+        FindProcessFromStateOrInvalidate();
     }
     private string StateKey()
     {
@@ -44,34 +48,24 @@ public class UniqueNamedProcess
     }
     public int ProcessID()
     {
-        if (Process != null)
+        if (Process == null) return INVALID_PROCESS_ID;
+        try
         {
-            try
-            {
-                if (Process.HasExited){ //this can throw if it hasn't been started
-                    Process = null;
-                }
-                return Process.Id;
-            }
-            catch
-            {
+            if (Process.HasExited){ //this can throw if it hasn't been started
                 Process = null;
-                return INVALID_PROCESS_ID;
             }
+            return Process.Id;
         }
-            
-        var potentialProcess = FindProcessFromStateOrInvalidate();
-        return potentialProcess?.Id ?? INVALID_PROCESS_ID;
+        catch
+        {
+            Process = null;
+            return INVALID_PROCESS_ID;
+        }
+        return INVALID_PROCESS_ID;
     }
 
     public void Start()
     {
-        var existingProcess = FindProcessFromStateOrInvalidate();
-        if (existingProcess != null)
-        {
-            Process = existingProcess;
-            return;
-        }
         Process = new Process(){StartInfo = StartInfo};
         Process.Start(); //this can throw... letting them propagate for now
         SetStateInt(Process.Id);
@@ -80,20 +74,11 @@ public class UniqueNamedProcess
 
     public void Stop()
     {
-        if (Process != null)
-        {
-            Process.Kill();
-            Process = null;
-            SetStateInt(INVALID_PROCESS_ID);
-            return;
-        }
+        if (Process == null) return;
+        Process.Kill();
+        Process = null;
+        SetStateInt(INVALID_PROCESS_ID);
+        return;
 
-        var existingProcess = FindProcessFromStateOrInvalidate();
-        if(existingProcess != null)
-        {
-            existingProcess.Kill();
-            Process = null;
-            SetStateInt(INVALID_PROCESS_ID);
-        }
     }
 }

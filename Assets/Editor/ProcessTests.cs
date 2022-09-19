@@ -11,41 +11,6 @@ using Debug = UnityEngine.Debug;
 
 public class ProcessTests
 {
-#if ENABLE_TESTS
-    [MenuItem("Tests/Process/Test Run With WorkingDir")]
-#endif
-    public static void TestADBDevicesRunFromPath()
-    {
-        var setup = GetSetup();
-        var commandWrapper = setup.Item1;
-        
-        //Debug.Log("outputString: " + commandWrapper.Run(@"echo","hello world","C:\\\\","Error Running echo"));
-        //hello && ping /n 3 google.com
-        Debug.Log("outputString: " + commandWrapper.Run(@"ping","/n 1 google.com",null,"Error Running ping"));
-        //fails
-        //Debug.Log("outputString: " + commandWrapper.Run(@"ping /n 3 google.com","Error Running ping"));
-        //Debug.Log("outputString: " + commandWrapper.Run(@"C:\\Windows\\System32\\ping.exe /n 3 google.com","Error Running ping"));
-        //Debug.Log("outputString: " + commandWrapper.Run(@"C:\\Windows\\System32\\ping.exe","Error Running ping"));
-        
-        Debug.Log("outputString: " + commandWrapper.Run(@"C:\\Windows\\System32\\ipconfig.exe","Error Running ipconfig"));
-        Debug.Log("outputString: " + commandWrapper.Run(@"ipconfig","Error Running ipconfig"));
-        
-        //something to do with the way the command is being run makes the command run itself fail
-        //Debug.Log("outputString: " + commandWrapper.Run(@"dir","C:\\","C:\\","Error Running dir"));
-        //Debug.Log("outputString: " + commandWrapper.Run(@"dir C:\\","Error Running dir"));
-        //echo is a part of cmd so that's why it doesn't work
-        //Debug.Log("outputString: " + commandWrapper.Run(@"echo hello world","Error Running echo"));
-        string outputString = commandWrapper.Run(@"cmd","/c \"echo hello world\"",null,"Error Running echo");
-        Debug.Log(outputString);
-        
-        outputString = commandWrapper.Run(@"cmd","/c \"echo hello world\"","C:\\\\","Error Running dir");
-        Debug.Log(outputString);
-        outputString = commandWrapper.Run(@"cmd","/c \"dir\"","C:\\\\","Error Running dir");
-        Debug.Log(outputString);
-        outputString = commandWrapper.Run(@"cmd","/c \"dir\"","C:\\\\","Error Running dir");
-        Debug.Log(outputString);
-    }
-
     [MenuItem("Tests/TestInternalProcess NonBlocking")]
     public static void TestInternalRunProcessNonBlcoking()
     {
@@ -86,6 +51,43 @@ public class ProcessTests
         
         GC.KeepAlive(process);
     }
+    
+#if ENABLE_TESTS
+    [MenuItem("Tests/Process/Test Run With WorkingDir")]
+#endif
+    public static void TestADBDevicesRunFromPath()
+    {
+        var setup = GetSetup();
+        var commandWrapper = setup.Item1;
+        
+        //Debug.Log("outputString: " + commandWrapper.Run(@"echo","hello world","C:\\\\","Error Running echo"));
+        //hello && ping /n 3 google.com
+        Debug.Log("outputString: " + commandWrapper.Run(@"ping","/n 1 google.com",null,"Error Running ping"));
+        //fails
+        //Debug.Log("outputString: " + commandWrapper.Run(@"ping /n 3 google.com","Error Running ping"));
+        //Debug.Log("outputString: " + commandWrapper.Run(@"C:\\Windows\\System32\\ping.exe /n 3 google.com","Error Running ping"));
+        //Debug.Log("outputString: " + commandWrapper.Run(@"C:\\Windows\\System32\\ping.exe","Error Running ping"));
+        
+        Debug.Log("outputString: " + commandWrapper.Run(@"C:\\Windows\\System32\\ipconfig.exe","Error Running ipconfig"));
+        Debug.Log("outputString: " + commandWrapper.Run(@"ipconfig","Error Running ipconfig"));
+        
+        //something to do with the way the command is being run makes the command run itself fail
+        //Debug.Log("outputString: " + commandWrapper.Run(@"dir","C:\\","C:\\","Error Running dir"));
+        //Debug.Log("outputString: " + commandWrapper.Run(@"dir C:\\","Error Running dir"));
+        //echo is a part of cmd so that's why it doesn't work
+        //Debug.Log("outputString: " + commandWrapper.Run(@"echo hello world","Error Running echo"));
+        string outputString = commandWrapper.Run(@"cmd","/c \"echo hello world\"",null,"Error Running echo");
+        Debug.Log(outputString);
+        
+        outputString = commandWrapper.Run(@"cmd","/c \"echo hello world\"","C:\\\\","Error Running dir");
+        Debug.Log(outputString);
+        outputString = commandWrapper.Run(@"cmd","/c \"dir\"","C:\\\\","Error Running dir");
+        Debug.Log(outputString);
+        outputString = commandWrapper.Run(@"cmd","/c \"dir\"","C:\\\\","Error Running dir");
+        Debug.Log(outputString);
+    }
+
+    
     
 #if ENABLE_TESTS
     [MenuItem("Tests/Process/TestADBDevicesRunFromPath")]
