@@ -25,9 +25,14 @@ public class ProcessTests
             {
                 var potentialProcess = Process.GetProcessById(pingCommandID);
                 Debug.Log($"ping has exited {potentialProcess.HasExited}");
-                if (potentialProcess.HasExited)
+                if (potentialProcess.HasExited){
                     SessionState.SetInt("PingCommandID", 0);
-
+                }
+                else
+                {
+                    Debug.Log("Looked up process and it's still running, so early out");
+                    return;
+                }
             }
             catch(ArgumentException) //GetProcessById throws "ArgumentException: Can't find process with ID 198528"
             {
@@ -36,8 +41,8 @@ public class ProcessTests
         }
         ProcessStartInfo startInfo = new ProcessStartInfo()
         {
-            FileName = "C:\\Windows\\System32\\cmd.exe",
-            Arguments = "/c \"ping /n 10 google.com\"",
+            FileName = "C:\\Windows\\System32\\ping.exe",
+            Arguments = "/n 10 google.com",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
@@ -46,10 +51,50 @@ public class ProcessTests
         
         var process = new Process(){StartInfo = startInfo};
         
+        process.OutputDataReceived += (sender, args) => UnityEngine.Debug.Log($"stdout: {args.Data}");
+        process.ErrorDataReceived += (sender, args) => UnityEngine.Debug.Log($"stderr: {args.Data}");
         process.Start();
         SessionState.SetInt("PingCommandID", process.Id);
         
         GC.KeepAlive(process);
+    }
+    
+    //[MenuItem("Tests/TestInternalProcess NonBlocking")]
+    public static void TestUseNamedProcess()
+    {
+        var pingProcess = new Process()
+        {
+            StartInfo = new ProcessStartInfo()
+            {
+                FileName = "C:\\Windows\\System32\\ping.exe",
+                Arguments = "/n 10 google.com",
+                //RedirectStandardOutput = true,
+                //RedirectStandardError = true,
+                UseShellExecute = true,
+                CreateNoWindow = true,
+            }
+        };
+        /*
+        //UniqueNamedProcessPerUnityRun pingProcess = new UniqueNamedProcessPerUnityRun("ping", );
+        pingProcess.Start();
+        var process = pingProcess.GetProcess();
+        if(process.HasExited)
+        {
+            UnityEngine.Debug.Log("Process has exited");
+        }
+        else
+        {
+            UnityEngine.Debug.Log("Process is running");
+            pingProcess.Stop();
+        }
+        */
+        pingProcess.OutputDataReceived += (sender, args) => UnityEngine.Debug.Log($"stdout: {args.Data}");
+        pingProcess.ErrorDataReceived += (sender, args) => UnityEngine.Debug.Log($"stderr: {args.Data}");
+        pingProcess.Start();
+        
+        UnityEngine.Debug.Log($"stdout; {pingProcess.StandardOutput.ReadToEnd()}");
+        UnityEngine.Debug.Log($"stderr: {pingProcess.StandardError.ReadToEnd()}");
+        
     }
     
 #if ENABLE_TESTS

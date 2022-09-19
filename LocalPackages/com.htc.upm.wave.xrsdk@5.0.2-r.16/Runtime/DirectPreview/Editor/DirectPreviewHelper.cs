@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net.NetworkInformation;
+using UnityEditor;
 using Wave.XR.DirectPreview.Editor;
+using Debug = UnityEngine.Debug;
 using Ping = System.Net.NetworkInformation.Ping;
 
 public class DirectPreviewHelper
@@ -52,20 +54,67 @@ public class DirectPreviewHelper
             UnityEngine.Debug.LogError("DirectPreview server not found");
             throw new Exception("DirectPreview server not found");
         }
+        Debug.Log("DirectPreview server found at " + rr_exe);
         ProcessStartInfo startInfo = new ProcessStartInfo()
         {
             FileName = rr_exe,
             UseShellExecute = false,
-            CreateNoWindow = true,
+            WorkingDirectory = rr_path,
+            CreateNoWindow = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            RedirectStandardInput = true,
+            RedirectStandardInput = false,
         };
         return new UniqueNamedProcessPerUnityRun("REMOTE_RENDERING_SERVER",startInfo);;
     }
+    
     public static void StartDirectPreview(DirectPreviewUnityStateVersion1 mDirectPreviewState)
     {
+        //TODO: test that the ports can be acquired at all and look for failure states
         var rr_server = RemoteRenderingServer();
+        rr_server.Start();
+    }
+    [MenuItem("ffoo/Start")]
+    public static void StartTest()
+    {
+        var rr_server = RemoteRenderingServer();
+        rr_server.Start();
+    }
+    
+    [MenuItem("ffoo/Logs")]
+    public static void LogTest()
+    {
+        var rr_server = RemoteRenderingServer();
+        var process = rr_server.GetProcess();
+        if(process != null)
+        {
+            if(process.HasExited)
+            {
+                UnityEngine.Debug.Log("Process has exited");
+            }
+            else
+            {
+                UnityEngine.Debug.Log("Process is running");
+            }
+            UnityEngine.Debug.Log($"stdout; {process.StandardOutput.ReadToEnd()}");
+            UnityEngine.Debug.Log($"stderr: {process.StandardError.ReadToEnd()}");
+        }
+        else
+        {
+            Debug.Log("Couldn't find process");
+        }
+    }
+    [MenuItem("ffoo/Stop")]
+    public static void StopTest()
+    {
         
+        var rr_server = RemoteRenderingServer();
+        var process = rr_server.GetProcess();
+        if(process != null)
+        {
+            UnityEngine.Debug.Log($"stdout; {process.StandardOutput.ReadToEnd()}");
+            UnityEngine.Debug.Log($"stderr: {process.StandardError.ReadToEnd()}");
+        }
+        rr_server.Stop();
     }
 }

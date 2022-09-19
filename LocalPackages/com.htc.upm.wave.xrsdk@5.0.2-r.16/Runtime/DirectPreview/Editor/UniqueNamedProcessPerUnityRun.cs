@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using UnityEditor;
+using Debug = UnityEngine.Debug;
 
 // Start a new named process or find the existing version of it, between reloads of the appdomain of unity
 //Typically you'll want to use this for processes where shellexecute = false so that the parent process is Unity, and if unity dies/freezes so will the sub-app
@@ -15,7 +16,18 @@ public class UniqueNamedProcessPerUnityRun
     {
         ProcessName = processName;
         StartInfo = startInfo;
-        FindProcessFromStateOrInvalidate();
+        Process = FindProcessFromStateOrInvalidate();
+        try
+        {
+            if(Process.HasExited)
+            {
+                Process = null;
+            }
+        }
+        catch
+        {
+            // ignored
+        }
     }
     private string StateKey()
     {
@@ -63,10 +75,27 @@ public class UniqueNamedProcessPerUnityRun
         }
     }
 
+    public Process GetProcess()
+    {
+        return Process;
+    }
+
     public void Start()
     {
+        if(Process != null)
+            return;
         Process = new Process(){StartInfo = StartInfo};
+        Process.OutputDataReceived += (sender, args) => { Debug.Log("OUTPUT DATA" + args.Data); };
+        Process.Exited += (sender, args) =>
+        {
+            Debug.Log("PROCESS EXITED"); 
+            UnityEngine.Debug.Log($"stdout; {Process.StandardOutput.ReadToEnd()}");
+            UnityEngine.Debug.Log($"stderr: {Process.StandardError.ReadToEnd()}");
+        };
+        
         Process.Start(); //this can throw... letting them propagate for now
+        Debug.Log("Started process " + ProcessName + " with id " + Process.Id);
+        
         SetStateInt(Process.Id);
         GC.KeepAlive(Process); //don't dispose of the process if it falls out of scope, we want the process to keep running
     }
