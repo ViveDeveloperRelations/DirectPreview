@@ -37,9 +37,10 @@ public class ProcessTests
         Debug.Log(outputString);
         
         outputString = commandWrapper.Run(@"cmd","/c \"echo hello world\"","C:\\\\","Error Running dir");
+        Debug.Log(outputString);
         outputString = commandWrapper.Run(@"cmd","/c \"dir\"","C:\\\\","Error Running dir");
-
-        //outputString = commandWrapper.Run(@"cmd","/c \"dir\"","C:\\\\","Error Running dir");
+        Debug.Log(outputString);
+        outputString = commandWrapper.Run(@"cmd","/c \"dir\"","C:\\\\","Error Running dir");
         Debug.Log(outputString);
     }
 #if ENABLE_TESTS
