@@ -39,13 +39,13 @@ namespace Wave.XR.DirectPreview.Editor
             EditorGUILayout.LabelField("Use Wi-Fi to get data from device and show images on HMD.\n" +
                                        "Suggest to use 5G Wi-Fi to get better performance.", GUILayout.Height(40));
 					
-            m_DirectPreviewState.DeviceWifiAddress = EditorGUILayout.TextField("Device Wi-Fi IP: ", m_DirectPreviewState.DeviceWifiAddress);
+            m_DirectPreviewState.DeviceWifiAddress = EditorGUILayout.TextField("Device Wi-Fi IP: ", m_DirectPreviewState.DeviceWifiAddress).Trim();
             if(GUILayout.Button("Test reachability of headset"))
             {
                 bool canReach = false;
                 try
                 {
-                    canReach = DirectPreviewHelper.PingHost(m_DirectPreviewState.DeviceWifiAddress);
+                    canReach = DirectPreviewHelper.PingHost( m_DirectPreviewState.DeviceWifiAddress);
                 }catch{Debug.Log("PingHost exception");}
                 ShowNotification(new GUIContent(canReach ? "Reachable" : "Not reachable"));
             }
