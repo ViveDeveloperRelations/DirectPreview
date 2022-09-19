@@ -50,7 +50,11 @@ public class UniqueNamedProcessPerUnityRun
             return null;
         try
         {
-            return Process.GetProcessById(processID);
+            var process = Process.GetProcessById(processID);
+            process.StartInfo = StartInfo;
+            //GC.KeepAlive(process); //don't dispose of the process if it falls out of scope, we want the process to keep running
+            //process.Start(); //not sure why this reference that was looked up needs to be 'started' again, but it does
+            return process;
         }
         catch (ArgumentException) //GetProcessById throws "ArgumentException: Can't find process with ID 198528"
         {
@@ -78,6 +82,29 @@ public class UniqueNamedProcessPerUnityRun
     public Process GetProcess()
     {
         return Process;
+    }
+
+    public bool IsRunningHelperTest()
+    {
+        if (Process == null) return false;
+        
+        try
+        {
+            if(Process.HasExited)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        catch
+        {
+            // ignored
+        }
+
+        return false;
     }
 
     public void Start()
