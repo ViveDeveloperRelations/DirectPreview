@@ -124,7 +124,7 @@ namespace Wave.XR.DirectPreview
 				*/
 				PrintDebug("OnSceneLoaded() call WVR_PostInit()");
 				
-				DirectPreviewHelper.StartDirectPreview(directPreviewState);
+				//DirectPreviewHelper.StartDirectPreview(directPreviewState);
 				
 				//FIXME: assumes there's a camera.main on scene load, sometimes this is loaded later and/or swapped out at runtime. also multiple scene loads could cause multple attaches
 				var camera = Camera.main;
