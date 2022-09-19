@@ -3,6 +3,7 @@ using Editor;
 using UnityEditor;
 using UnityEditor.PackageManager.UI;
 using UnityEngine;
+using UnityEngine.XR.Management;
 
 namespace Wave.XR.DirectPreview.Editor
 {
@@ -115,22 +116,78 @@ namespace Wave.XR.DirectPreview.Editor
         }
 
         bool allGUIButtonsFoldout = false;
+        bool showRenderingServerLogs = false;
         void ShowButtons()
         {
             if(GUILayout.Button("Start Direct Preview -- beta"))
             {
                 DirectPreviewHelper.StartDirectPreview(m_DirectPreviewState);
             }
+            showRenderingServerLogs = EditorGUILayout.Foldout(showRenderingServerLogs, "Show rendering server logs");
+
+            if (showRenderingServerLogs)
+            {
+                var runningProcess = DirectPreviewHelper.RemoteRenderingServer();
+                string textOutput = "";
+                string textErrors = "";
+                try
+                {
+                    var process = runningProcess.GetProcess();
+                    if (process != null)
+                    {
+                        process.Start(); //not sure why this process needs to be 'started', but here we are
+                        textOutput = process.StandardOutput.ReadToEnd();
+                        textErrors = process.StandardError.ReadToEnd();
+                    }
+                }
+                catch(Exception e)
+                {
+                    Debug.Log("Failed to get RR Process");
+                    Debug.LogException(e);
+                }
+                GUILayout.Label("Output:");
+                EditorGUILayout.TextArea(textOutput,GUILayout.Height(100));
+                GUILayout.Label("Errors:");
+                EditorGUILayout.TextArea(textErrors,GUILayout.Height(50));
+            }
+            
             allGUIButtonsFoldout = EditorGUILayout.Foldout(allGUIButtonsFoldout, "All GUI Buttons");
             if(allGUIButtonsFoldout){
-                if (GUILayout.Button("Start streaming server"))
+                UniqueNamedProcessPerUnityRun runningProcess = DirectPreviewHelper.RemoteRenderingServer();
+                if (!runningProcess.IsRunningHelperTest())
                 {
-                    StreamingServer.StartStreamingServer();
+                    if (GUILayout.Button("Start streaming server"))
+                    {
+                        //StreamingServer.StartStreamingServer();
+                        DirectPreviewHelper.RemoteRenderingServer().Start();
+                    }
                 }
-                if (GUILayout.Button("Stop streaming server"))
+                else
                 {
-                    StreamingServer.StopStreamingServer();
+                    if (GUILayout.Button("Stop streaming server"))
+                    {
+                        DirectPreviewHelper.RemoteRenderingServer().Stop();
+                    }
+                    if(GUILayout.Button("Test Dump info from reference"))
+                    {
+                        TestDumpInfoFromReference(runningProcess);
+                    }
+                    if (GUILayout.Button("Kill all servers if"))
+                    {
+                        new System.Diagnostics.Process()
+                        {
+                            StartInfo = new System.Diagnostics.ProcessStartInfo()
+                            {
+                                FileName = "taskkill",
+                                Arguments = "/F /IM dpServer.exe",
+                                UseShellExecute = false,
+                                RedirectStandardOutput = true,
+                                CreateNoWindow = true,
+                            }
+                        }.Start();
+                    }
                 }
+                /*
                 if (GUILayout.Button("Start Device APK"))
                 {
                     DirectPreviewAPK.StartSimulator();
@@ -143,12 +200,30 @@ namespace Wave.XR.DirectPreview.Editor
                 {
                     DirectPreviewAPK.InstallSimulator();
                 }
+                */
             }
         }
 
+        private void TestDumpInfoFromReference(UniqueNamedProcessPerUnityRun runningProcess)
+        {
+            var process = runningProcess.GetProcess();
+            if (process != null)
+            {
+                process.Start();
+                var output = process.StandardOutput.ReadToEnd();
+                var error = process.StandardError.ReadToEnd();
+                Debug.Log("11Output:" + output);
+                Debug.Log("11Error:" + error);
+            }
+        }
         void OnGUI()
         {
             if (Application.isPlaying)
+            {
+                EditorGUILayout.HelpBox("Application is Playing\n" + "Before any DirectPreview operation, please stop playing.", MessageType.None);
+                return;
+            }
+            if ()
             {
                 EditorGUILayout.HelpBox("Application is Playing\n" + "Before any DirectPreview operation, please stop playing.", MessageType.None);
                 return;
@@ -171,5 +246,7 @@ namespace Wave.XR.DirectPreview.Editor
         {
             Repaint();
         }
+
+        //use call menu item? or just reflection
     }
 }
