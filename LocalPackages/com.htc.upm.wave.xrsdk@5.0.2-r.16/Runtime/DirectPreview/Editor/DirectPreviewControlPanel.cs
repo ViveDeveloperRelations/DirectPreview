@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using DirectPreview.Utility;
 using Editor;
 using UnityEditor;
 using UnityEditor.PackageManager.UI;
@@ -216,6 +218,26 @@ namespace Wave.XR.DirectPreview.Editor
                 Debug.Log("11Error:" + error);
             }
         }
+
+        static bool IsBuildingAgainstPlatforms()
+        {
+            //FIXME: set up the asmdefs so that the refleciton isn't needed
+            var assembly = AppDomain.CurrentDomain.GetAssemblies()
+                .FirstOrDefault(a => a.FullName.Contains("Wave.XRSDK.Editor"));
+            var waveQueryXRSettings = assembly.GetType("WaveQueryXRSettings"); //todo: namespace aka Wave.XRSDK.Editor.
+            bool buildAndroid = Convert.ToBoolean( ReflectionHelpers.InvokePublicStaticMethod(waveQueryXRSettings,"CheckIsBuildingWaveAndroid"));
+            bool buildPC = Convert.ToBoolean( ReflectionHelpers.InvokePublicStaticMethod(waveQueryXRSettings,"CheckIsBuildingWaveStandalone"));
+            return buildAndroid && buildPC;
+        }
+        static void SetWaveBuildingAgainstPlatforms()
+        {
+            //FIXME: set up the asmdefs so that the refleciton isn't needed
+            var assembly = AppDomain.CurrentDomain.GetAssemblies()
+                .FirstOrDefault(a => a.FullName.Contains("Wave.XRSDK.Editor"));
+            var waveQueryXRSettings = assembly.GetType("WaveQueryXRSettings"); //todo: namespace aka Wave.XRSDK.Editor.
+            ReflectionHelpers.InvokePublicStaticMethod(waveQueryXRSettings,"AddIsBuildingWaveAndroid");
+            ReflectionHelpers.InvokePublicStaticMethod(waveQueryXRSettings,"AddIsBuildingWaveStandalone");
+        }
         void OnGUI()
         {
             if (Application.isPlaying)
@@ -223,9 +245,13 @@ namespace Wave.XR.DirectPreview.Editor
                 EditorGUILayout.HelpBox("Application is Playing\n" + "Before any DirectPreview operation, please stop playing.", MessageType.None);
                 return;
             }
-            if ()
+            if (!IsBuildingAgainstPlatforms())
             {
-                EditorGUILayout.HelpBox("Application is Playing\n" + "Before any DirectPreview operation, please stop playing.", MessageType.None);
+                EditorGUILayout.HelpBox("Please enable wave xr build options in the settings", MessageType.None);
+                if(GUILayout.Button("Enable Wave XR Build Options"))
+                {
+                    SetWaveBuildingAgainstPlatforms();
+                }
                 return;
             }
 
