@@ -19,24 +19,17 @@ namespace Editor
             m_ProgramType = unityEditorCoreModuleAssembly.GetType("UnityEditor.Utils.Program") ?? throw new TypeLoadException("UnityEditor.Android.Program");
         }
 
-        /*
-         //need to be more careful with the below
+        
         public string Run(string command, string args, string workingDir, string errorMsg)
         {
-            return ReflectionHelpers.InvokePublicStaticMethod(m_CommandType, "Run", command, args, workingDir, errorMsg) as string;
+            var methodInfo = GetRunWithProcessFourStringInputs(m_CommandType);
+            return methodInfo.Invoke(null, new object[] {command, args, workingDir, errorMsg}) as string;
         }
-        //untested
-        public string Run(ProcessStartInfo startInfo,string errorMsg)
+        public string Run(string command, string errorMsg)
         {
-            return ReflectionHelpers.InvokePublicStaticMethod(m_CommandType, "Run", startInfo, null, null, errorMsg) as string;
+            return Run(command, "", "", errorMsg);
         }
-        */
-        /*
-            public string Run(ProcessStartInfo startInfo,WaitingForProcessToExit onWaitDelegate, string errorMsg)
-            {
-                return m_CommandType.GetMethod("Run", BindingFlags.Public | BindingFlags.Static).Invoke(null, new object[] { startInfo, null, null, errorMsg}) as string;
-            }
-            */
+
         public string Run(ProcessStartInfo startInfo,WaitingForProcessToExit onWaitDelegate, string errorMsg)
         {
             //Delegate del = Delegate.CreateDelegate(typeof(WaitingForProcessToExit), onWaitDelegate.Target, onWaitDelegate.Method);
@@ -67,6 +60,37 @@ namespace Editor
                 if(methodInfo.Name == "Run" && parameters.Length == 3 && parameters[0].ParameterType == typeof(ProcessStartInfo) && parameters[1].ParameterType == processingDelegateType && parameters[2].ParameterType == typeof(string))
                 {
                     //not sure why I have to be this specific, but ok.
+                    method = methodInfo;
+                }
+            }
+
+            return method;
+        }
+        bool SignatureMatches(MethodInfo methodInfo, Type[] parameterTypes)
+        {
+            var parameters = methodInfo.GetParameters();
+            if (parameters.Length != parameterTypes.Length)
+                return false;
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                if (parameters[i].ParameterType != parameterTypes[i])
+                    return false;
+            }
+            return true;
+        }
+        private MethodInfo GetRunWithProcessFourStringInputs(Type processingDelegateType)
+        {
+            var methods = m_CommandType.GetMethods(BindingFlags.Public | BindingFlags.Static);
+            MethodInfo method = null;
+            foreach (var methodInfo in methods)
+            {
+                if(methodInfo.Name == "Run" && SignatureMatches(methodInfo,new[]{typeof(string),typeof(string),typeof(string),typeof(string)}) )
+                {
+                    //not sure why I have to be this specific, but ok.
+                    if (method != null)
+                    {
+                        Debug.LogError("Found more than one method with the signature Run(string,string,string,string)");
+                    }
                     method = methodInfo;
                 }
             }

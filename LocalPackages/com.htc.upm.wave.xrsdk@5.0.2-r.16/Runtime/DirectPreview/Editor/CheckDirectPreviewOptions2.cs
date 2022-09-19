@@ -56,7 +56,6 @@ namespace Wave.XR.DirectPreview.Editor
 		        bool canReach = false;
 		        try
 		        {
-			        //canReach = DirectPreviewhelper.PingHost("google.com");
 			        canReach = DirectPreviewHelper.PingHost(m_DirectPreviewState.DeviceWifiAddress);
 		        }catch{Debug.Log("PingHost exception");}
 		        ShowNotification(new GUIContent(canReach ? "Reachable" : "Not reachable"));
@@ -89,6 +88,7 @@ namespace Wave.XR.DirectPreview.Editor
 			        GUILayout.Label("Last known IP is the same as current IP");
 		        }
 	        }
+	        
 
 	        //m_DirectPreviewState.DllTraceLogToFile = EditorGUI.Toggle(new Rect(0, 100, position.width, 20), "Save log to file", m_DirectPreviewState.DllTraceLogToFile);
 
