@@ -98,6 +98,22 @@ namespace Editor
             {
                 Debug.Log("process status is null");
             }
+            Debug.Log($"{adbFacade.Run(new[]{"devices"},"Error running adb devices")} devices");
+
+            //string shellCommand = @"adb shell ""ip addr show wlan0  | grep 'inet ' | cut -d ' ' -f 6 | cut -d / -f 1""";
+            var shellCommand = @"""ip addr show wlan0  | grep 'inet ' | cut -d ' ' -f 6 | cut -d / -f 1""";
+            var ip = adbFacade.Run(new []{"shell",shellCommand}, "error running get ip");
+            Debug.Log($"Headset ip address {ip}");
+        }
+
+        public static string GetConnectedHeadsetIP()
+        {
+            AdbReflectionSetup adbReflection = new AdbReflectionSetup();
+
+            var shellCommand = @"""ip addr show wlan0  | grep 'inet ' | cut -d ' ' -f 6 | cut -d / -f 1""";
+            var adbFacade = adbReflection.AdbFacade;
+            var ip = adbFacade.Run(new []{"shell",shellCommand}, "error running get ip");
+            return ip;
         }
 
 
