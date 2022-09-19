@@ -107,6 +107,10 @@ namespace Wave.XR.DirectPreview.Editor
 
         void ShowButtons()
         {
+            if(GUILayout.Button("Start Direct Preview"))
+            {
+                DirectPreviewHelper.StartDirectPreview(m_DirectPreviewState);
+            }
             if (GUILayout.Button("Start streaming server"))
             {
                 StreamingServer.StartStreamingServer();
