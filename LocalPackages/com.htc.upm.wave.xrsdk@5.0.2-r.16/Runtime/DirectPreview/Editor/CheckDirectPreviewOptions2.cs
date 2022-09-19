@@ -91,7 +91,6 @@ namespace Wave.XR.DirectPreview.Editor
             if (GUILayout.Button("Start streaming server"))
             {
                 StreamingServer.StartStreamingServer();
-                configFoldout = false;
             }
             if (GUILayout.Button("Stop streaming server"))
             {
@@ -100,7 +99,6 @@ namespace Wave.XR.DirectPreview.Editor
             if (GUILayout.Button("Start Device APK"))
             {
                 DirectPreviewAPK.StartSimulator();
-                configFoldout = false;
             }
             if (GUILayout.Button("Stop Device APK"))
             {
