@@ -1,6 +1,7 @@
 ﻿using System;
 using Editor;
 using UnityEditor;
+using UnityEditor.PackageManager.UI;
 using UnityEngine;
 
 namespace Wave.XR.DirectPreview.Editor
@@ -67,7 +68,7 @@ namespace Wave.XR.DirectPreview.Editor
                 {
                     if(GUILayout.Button("Use last known IP"))
                     {
-                        GUI.FocusControl(null); // unfocus from other items, as this can prevent the text field from updating
+                        UnfocusWindow(); // unfocus from other items, as this can prevent the text field from updating
                         m_DirectPreviewState.DeviceWifiAddress = lastKnownHeadsetIP;
                     }
                 }
@@ -88,7 +89,11 @@ namespace Wave.XR.DirectPreview.Editor
                 PreviewGUI();
             }
         }
-
+        public void UnfocusWindow()
+        {
+            if(hasFocus)
+                GUI.FocusControl(null);
+        }
         void PreviewGUI()
         {
             var fps_pairs = DirectPreviewUnityStateVersion1.FPSOption.FPS_Pairs;
@@ -104,32 +109,35 @@ namespace Wave.XR.DirectPreview.Editor
             m_DirectPreviewState.OutputImageToFile = EditorGUILayout.Toggle("Regularly save images: ", m_DirectPreviewState.OutputImageToFile);
         }
 
-
+        bool allGUIButtonsFoldout = false;
         void ShowButtons()
         {
-            if(GUILayout.Button("Start Direct Preview"))
+            if(GUILayout.Button("Start Direct Preview -- beta"))
             {
                 DirectPreviewHelper.StartDirectPreview(m_DirectPreviewState);
             }
-            if (GUILayout.Button("Start streaming server"))
-            {
-                StreamingServer.StartStreamingServer();
-            }
-            if (GUILayout.Button("Stop streaming server"))
-            {
-                StreamingServer.StopStreamingServer();
-            }
-            if (GUILayout.Button("Start Device APK"))
-            {
-                DirectPreviewAPK.StartSimulator();
-            }
-            if (GUILayout.Button("Stop Device APK"))
-            {
-                DirectPreviewAPK.StopSimulator();
-            }
-            if (GUILayout.Button("Install Device APK"))
-            {
-                DirectPreviewAPK.InstallSimulator();
+            allGUIButtonsFoldout = EditorGUILayout.Foldout(allGUIButtonsFoldout, "All GUI Buttons");
+            if(allGUIButtonsFoldout){
+                if (GUILayout.Button("Start streaming server"))
+                {
+                    StreamingServer.StartStreamingServer();
+                }
+                if (GUILayout.Button("Stop streaming server"))
+                {
+                    StreamingServer.StopStreamingServer();
+                }
+                if (GUILayout.Button("Start Device APK"))
+                {
+                    DirectPreviewAPK.StartSimulator();
+                }
+                if (GUILayout.Button("Stop Device APK"))
+                {
+                    DirectPreviewAPK.StopSimulator();
+                }
+                if (GUILayout.Button("Install Device APK"))
+                {
+                    DirectPreviewAPK.InstallSimulator();
+                }
             }
         }
 
