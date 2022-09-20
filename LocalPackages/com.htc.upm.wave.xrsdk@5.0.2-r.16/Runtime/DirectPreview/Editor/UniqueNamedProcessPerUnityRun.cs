@@ -51,7 +51,20 @@ public class UniqueNamedProcessPerUnityRun
         try
         {
             var process = Process.GetProcessById(processID);
-            process.StartInfo = StartInfo;
+            process.Refresh();
+            try
+            {
+                if (process.HasExited)
+                {
+                    SetStateInt(INVALID_PROCESS_ID);
+                    return null;
+                }
+            }
+            catch
+            {
+            } //has exited can fail in a few spots, ignore this here for now
+
+            //process.StartInfo = StartInfo;
             //GC.KeepAlive(process); //don't dispose of the process if it falls out of scope, we want the process to keep running
             //process.Start(); //not sure why this reference that was looked up needs to be 'started' again, but it does
             return process;
