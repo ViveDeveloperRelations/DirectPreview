@@ -59,7 +59,7 @@ namespace Wave.XR.DirectPreview.Editor
             {
                 try
                 {
-                    m_DirectPreviewState.DeviceWifiAddress = ADBWrapper.GetConnectedHeadsetIP();
+                    m_DirectPreviewState.DeviceWifiAddress = DirectPreviewHelper.DeviceIPAddress();
                 }
                 catch (Exception e)
                 {

@@ -134,7 +134,7 @@ public class DirectPreviewHelper
         }
     }
 
-    private static string DeviceIPAddress()
+    public static string DeviceIPAddress()
     {
         AdbReflectionSetup adbReflection = new AdbReflectionSetup();
         var adbFacade = adbReflection.AdbFacade;
