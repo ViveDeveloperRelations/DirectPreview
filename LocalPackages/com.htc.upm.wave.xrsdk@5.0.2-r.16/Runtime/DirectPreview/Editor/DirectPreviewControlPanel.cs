@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using DirectPreview.Utility;
 using Editor;
@@ -6,6 +7,7 @@ using UnityEditor;
 using UnityEditor.PackageManager.UI;
 using UnityEngine;
 using UnityEngine.XR.Management;
+using Debug = UnityEngine.Debug;
 
 namespace Wave.XR.DirectPreview.Editor
 {
@@ -46,22 +48,19 @@ namespace Wave.XR.DirectPreview.Editor
             return canReach;
         }
         private string lastKnownHeadsetIP = "";
+        
         void ShowWifiGUI()
         {
             EditorGUILayout.LabelField("Use Wi-Fi to get data from device and show images on HMD.\n" +
                                        "Suggest to use 5G Wi-Fi to get better performance.", GUILayout.Height(40));
-					
+            GUI.enabled = false;
             m_DirectPreviewState.DeviceWifiAddress = EditorGUILayout.TextField("Device Wi-Fi IP: ", m_DirectPreviewState.DeviceWifiAddress).Trim();
-            if(GUILayout.Button("Test reachability of headset"))
-            {
-                bool canReach = HeadsetReachable(m_DirectPreviewState.DeviceWifiAddress);
-                ShowNotification(new GUIContent(canReach ? "Reachable" : "Not reachable"));
-            }
-            if(GUILayout.Button("Get IP from headset (if possible)"))
+            GUI.enabled = true;
+            if(GUILayout.Button("Get IP from headset (if connected through unity)"))
             {
                 try
                 {
-                    lastKnownHeadsetIP = ADBWrapper.GetConnectedHeadsetIP();
+                    m_DirectPreviewState.DeviceWifiAddress = ADBWrapper.GetConnectedHeadsetIP();
                 }
                 catch (Exception e)
                 {
@@ -70,25 +69,11 @@ namespace Wave.XR.DirectPreview.Editor
                 }
             }
 
-            if (!string.IsNullOrEmpty(lastKnownHeadsetIP))
+            if(GUILayout.Button("Test reachability of headset"))
             {
-                if(lastKnownHeadsetIP != m_DirectPreviewState.DeviceWifiAddress)
-                {
-                    if(GUILayout.Button("Use last known IP"))
-                    {
-                        UnfocusWindow(); // unfocus from other items, as this can prevent the text field from updating
-                        if (lastKnownHeadsetIP != null)
-                        {
-                            m_DirectPreviewState.DeviceWifiAddress = lastKnownHeadsetIP.Trim();
-                        }
-                    }
-                }
-                else
-                {
-                    GUILayout.Label("Last known IP is the same as current IP");
-                }
+                bool canReach = HeadsetReachable(m_DirectPreviewState.DeviceWifiAddress);
+                ShowNotification(new GUIContent(canReach ? "Reachable" : "Not reachable"));
             }
-	        
 
             //m_DirectPreviewState.DllTraceLogToFile = EditorGUI.Toggle(new Rect(0, 100, position.width, 20), "Save log to file", m_DirectPreviewState.DllTraceLogToFile);
 
@@ -99,11 +84,6 @@ namespace Wave.XR.DirectPreview.Editor
             {
                 PreviewGUI();
             }
-        }
-        public void UnfocusWindow()
-        {
-            if(hasFocus)
-                GUI.FocusControl(null);
         }
         void PreviewGUI()
         {
@@ -119,7 +99,63 @@ namespace Wave.XR.DirectPreview.Editor
             
             m_DirectPreviewState.OutputImageToFile = EditorGUILayout.Toggle("Regularly save images: ", m_DirectPreviewState.OutputImageToFile);
         }
-        
+        public void UnfocusWindow()
+        {
+            if(hasFocus)
+                GUI.FocusControl(null);
+        }
+        bool showRenderingServerLogs = false;
+        void ShowRemoteRenderingLogs()
+        {
+            //for some reason we can't get stdout from the process but we can get a pointer to it
+            // likely there's something obivious I'm missing
+            // but it does seem the process is running and not in a zombie state, but just throws errors if you try to access stdout + stderr between reloads of the appdomain
+            showRenderingServerLogs = EditorGUILayout.Foldout(showRenderingServerLogs, "Show rendering server logs");
+
+            if (showRenderingServerLogs)
+            {
+                var runningProcess = DirectPreviewHelper.RemoteRenderingServer();
+                string textOutput = "";
+                string textErrors = "";
+                try
+                {
+                    var process = runningProcess.GetProcess();
+                    if (process != null)
+                    {
+                        process.Start(); //not sure why this process needs to be 'started', but here we are
+                        textOutput = process.StandardOutput.ReadToEnd();
+                        textErrors = process.StandardError.ReadToEnd();
+                    }
+                }
+                catch(Exception e)
+                {
+                    Debug.Log("Failed to get RR Process");
+                    Debug.LogException(e);
+                }
+                GUILayout.Label("Output:");
+                EditorGUILayout.TextArea(textOutput,GUILayout.Height(100));
+                GUILayout.Label("Errors:");
+                EditorGUILayout.TextArea(textErrors,GUILayout.Height(50));
+            }
+        }
+
+        void KillAllRemoteRenderingServersButton()
+        {
+            if (GUILayout.Button("Kill all rendering servers, useful for debugging"))
+            {
+                new System.Diagnostics.Process()
+                {
+                    StartInfo = new System.Diagnostics.ProcessStartInfo()
+                    {
+                        FileName = "taskkill",
+                        Arguments = "/F /IM dpServer.exe",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        CreateNoWindow = true,
+                    }
+                }.Start();
+            }
+        }
         bool allGUIButtonsFoldout = false;
         void ShowButtons()
         {
@@ -127,8 +163,10 @@ namespace Wave.XR.DirectPreview.Editor
             {
                 DirectPreviewHelper.StartDirectPreview(m_DirectPreviewState);
             }
+
+            //ShowRemoteRenderingLogs(); //still alpha
             
-            allGUIButtonsFoldout = EditorGUILayout.Foldout(allGUIButtonsFoldout, "All GUI Buttons");
+            allGUIButtonsFoldout = EditorGUILayout.Foldout(allGUIButtonsFoldout, "All GUI Buttons For debugging");
             if(allGUIButtonsFoldout){
                 UniqueNamedProcessPerUnityRun runningProcess = DirectPreviewHelper.RemoteRenderingServer();
                 if (!runningProcess.IsRunningHelperTest())
@@ -138,6 +176,7 @@ namespace Wave.XR.DirectPreview.Editor
                         //StreamingServer.StartStreamingServer();
                         DirectPreviewHelper.RemoteRenderingServer().Start();
                     }
+                    KillAllRemoteRenderingServersButton();
                 }
                 else
                 {
@@ -149,20 +188,8 @@ namespace Wave.XR.DirectPreview.Editor
                     {
                         TestDumpInfoFromReference(runningProcess);
                     }
-                    if (GUILayout.Button("Kill all rendering servers, useful for debugging"))
-                    {
-                        new System.Diagnostics.Process()
-                        {
-                            StartInfo = new System.Diagnostics.ProcessStartInfo()
-                            {
-                                FileName = "taskkill",
-                                Arguments = "/F /IM dpServer.exe",
-                                UseShellExecute = false,
-                                RedirectStandardOutput = true,
-                                CreateNoWindow = true,
-                            }
-                        }.Start();
-                    }
+
+                    KillAllRemoteRenderingServersButton();
                 }
             }
         }
