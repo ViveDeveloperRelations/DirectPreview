@@ -11,7 +11,9 @@ using Debug = UnityEngine.Debug;
 
 public class ProcessTests
 {
+#if ENABLE_TESTS
     [MenuItem("Tests/TestInternalProcess NonBlocking")]
+#endif
     public static void TestInternalRunProcessNonBlcoking()
     {
         var pingCommandID = SessionState.GetInt("PingCommandID", 0);

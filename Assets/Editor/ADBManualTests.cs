@@ -1,3 +1,5 @@
+
+#if ENABLE_TESTS
 using System.Reflection;
 using DirectPreviewEditor;
 using UnityEditor;
@@ -111,3 +113,4 @@ public class NewBehaviourScript : MonoBehaviour
         Debug.Log($"Is one device connected {adbFacade.OneDeviceConnected()}");
     }
 }
+#endif // ENABLE_TESTS

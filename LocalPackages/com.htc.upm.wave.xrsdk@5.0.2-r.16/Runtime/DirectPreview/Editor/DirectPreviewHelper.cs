@@ -83,8 +83,8 @@ public class DirectPreviewHelper
             return string.Empty;
         }
     }
-    [MenuItem("FOOBAR/TESTSTART")]
-    private static void InstallAndStartAPK()
+    
+    public static void InstallAndStartAPK()
     {
         
         var absolutePath =
@@ -173,15 +173,14 @@ public class DirectPreviewHelper
         InstallAndStartAPK(); //todo: try catch with an editor popup dialog with information on failure
     }
 
-    [MenuItem("ffoo/Start")]
-    public static void StartTest()
+    public static void StartRemoteRenderer()
     {
         var rr_server = RemoteRenderingServer();
         rr_server.Start();
     }
 
-    [MenuItem("ffoo/Logs")]
-    public static void LogTest()
+    
+    public static void RemoteRenderingDumpLogsTest()
     {
         var rr_server = RemoteRenderingServer();
         var process = rr_server.GetProcess();
@@ -204,9 +203,8 @@ public class DirectPreviewHelper
             Debug.Log("Couldn't find process");
         }
     }
-
-    [MenuItem("ffoo/Stop")]
-    public static void StopTest()
+    
+    public static void StopRemoteRenderingServer()
     {
 
         var rr_server = RemoteRenderingServer();

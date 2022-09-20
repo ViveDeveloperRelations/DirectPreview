@@ -1,0 +1,33 @@
+//#define ENABLE_TESTS
+#if ENABLE_TESTS
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
+
+public class DirectPreviewMenuItemTests : MonoBehaviour
+{
+    [MenuItem("DirectPreviewTest/Start")]
+    public static void StartTest()
+    {
+        DirectPreviewHelper.StartRemoteRenderer();
+    }
+    [MenuItem("DirectPreviewTest/DumpLogs")]
+    public static void LogTest()
+    {
+        DirectPreviewHelper.RemoteRenderingDumpLogsTest();
+    }
+
+    [MenuItem("DirectPreviewTest/Stop")]
+    public static void Stop()
+    {
+        DirectPreviewHelper.StopRemoteRenderingServer();
+    }
+    [MenuItem("DirectPreviewTest/InstallAndRunAPK")]
+    public static void InstallAndRunAPK()
+    {
+        DirectPreviewHelper.InstallAndStartAPK();
+    }
+}
+#endif
