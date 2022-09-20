@@ -42,12 +42,13 @@ namespace DirectPreviewEditor
         {
             return m_AdbInstance.InvokePublicMethod("Run", command, errorMessage) as string;
         }
+        //TODO: re-enable this method to allow for asynchronous waiting on an internal process like adb - this is the reason that the process/command wrapper were imprortant
         /*
-            public string Run(string[] command,CommandWrapper.WaitingForProcessToExit onWaitDelegate, string errorMsg)
-            {
-                return m_ADBType.GetMethod("Run", BindingFlags.Public | BindingFlags.Static).Invoke(null, new object[] { command, onWaitDelegate, errorMsg}) as string;
-            }
-            */
+        public string Run(string[] command,CommandWrapper.WaitingForProcessToExit onWaitDelegate, string errorMsg)
+        {
+            return m_ADBType.GetMethod("Run", BindingFlags.Public | BindingFlags.Static).Invoke(null, new object[] { command, onWaitDelegate, errorMsg}) as string;
+        }
+        */
         
         public AdbStatusFacade GetADBProcessStatus()
         {
@@ -194,18 +195,6 @@ namespace DirectPreviewEditor
             var statusRawReturn = m_AdbStatusInstance.GetPublicPropertyObject("status");
             Enum.TryParse(statusRawReturn.ToString(), out ADBProcessStatus status);
             return status;
-            /*
-            int intValue = statusRawReturn is int ? (int) statusRawReturn : -1;
-            var status = statusRawReturn;
-            
-            if (status == null)
-            {
-                throw new Exception("Internal exception invalid property type");
-            }
-            return (ADBProcessStatus) status;
-            */
-            //return Convert.ChangeType(status, typeof(ADBProcessStatus));
-            //return m_AdbStatusInstance.GetPublicField("status") as ProcessStatus? ?? ProcessStatus.Offline;
         }
 
     }
