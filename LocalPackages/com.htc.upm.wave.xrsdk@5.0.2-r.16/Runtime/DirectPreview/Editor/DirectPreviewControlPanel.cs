@@ -120,14 +120,15 @@ namespace Wave.XR.DirectPreview.Editor
             m_DirectPreviewState.OutputImageToFile = EditorGUILayout.Toggle("Regularly save images: ", m_DirectPreviewState.OutputImageToFile);
         }
 
-        bool allGUIButtonsFoldout = false;
+        
+        
+#if ALPHA_FEATURE_SHOW_RR_LOGS
         bool showRenderingServerLogs = false;
-        void ShowButtons()
+        void ShowRemoteRenderingLogs()
         {
-            if(GUILayout.Button("Start Direct Preview -- beta"))
-            {
-                DirectPreviewHelper.StartDirectPreview(m_DirectPreviewState);
-            }
+            //for some reason we can't get stdout from the process but we can get a pointer to it
+            // likely there's something obivious I'm missing
+            // but it does seem the process is running and not in a zombie state, but just throws errors if you try to access stdout + stderr between reloads of the appdomain
             showRenderingServerLogs = EditorGUILayout.Foldout(showRenderingServerLogs, "Show rendering server logs");
 
             if (showRenderingServerLogs)
@@ -155,6 +156,16 @@ namespace Wave.XR.DirectPreview.Editor
                 GUILayout.Label("Errors:");
                 EditorGUILayout.TextArea(textErrors,GUILayout.Height(50));
             }
+        }
+#endif //ALPHA_FEATURE_SHOW_RR_LOGS
+        
+        bool allGUIButtonsFoldout = false;
+        void ShowButtons()
+        {
+            if(GUILayout.Button("Start Direct Preview -- beta"))
+            {
+                DirectPreviewHelper.StartDirectPreview(m_DirectPreviewState);
+            }
             
             allGUIButtonsFoldout = EditorGUILayout.Foldout(allGUIButtonsFoldout, "All GUI Buttons");
             if(allGUIButtonsFoldout){
@@ -177,7 +188,7 @@ namespace Wave.XR.DirectPreview.Editor
                     {
                         TestDumpInfoFromReference(runningProcess);
                     }
-                    if (GUILayout.Button("Kill all servers if"))
+                    if (GUILayout.Button("Kill all rendering servers, useful for debugging"))
                     {
                         new System.Diagnostics.Process()
                         {
@@ -192,20 +203,6 @@ namespace Wave.XR.DirectPreview.Editor
                         }.Start();
                     }
                 }
-                /*
-                if (GUILayout.Button("Start Device APK"))
-                {
-                    DirectPreviewAPK.StartSimulator();
-                }
-                if (GUILayout.Button("Stop Device APK"))
-                {
-                    DirectPreviewAPK.StopSimulator();
-                }
-                if (GUILayout.Button("Install Device APK"))
-                {
-                    DirectPreviewAPK.InstallSimulator();
-                }
-                */
             }
         }
 
