@@ -17,7 +17,6 @@ using System.Diagnostics;
 #if UNITY_EDITOR && UNITY_EDITOR_WIN
 namespace Wave.XR.DirectPreview.Editor
 {
-	//TODO: should these settings be per-project or per user?
 	public class DirectPreviewControlPanel : EditorWindow
 	{
 		private const string DEVICE_WIFI_ADDRESS = "wifi_ip_state";
@@ -83,6 +82,7 @@ namespace Wave.XR.DirectPreview.Editor
             {
                 prevConnectTypeValue = EditorPrefs.GetInt(CONNECTTYPE);
             }
+
             selectedConnectTypeValue = EditorGUILayout.IntPopup("Connect Type: ", prevConnectTypeValue, ConnectTypeString, ConnectTypeValue);
 
             if (prevConnectTypeValue != selectedConnectTypeValue)
