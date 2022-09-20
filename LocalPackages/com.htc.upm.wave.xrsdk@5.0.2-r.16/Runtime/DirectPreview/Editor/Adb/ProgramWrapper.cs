@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Reflection;
 
-namespace Editor
+namespace DirectPreviewEditor
 {
     public class ProgramWrapper
     {

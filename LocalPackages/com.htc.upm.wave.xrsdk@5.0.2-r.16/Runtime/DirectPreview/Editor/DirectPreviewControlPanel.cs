@@ -1,7 +1,13 @@
 ﻿using System;
-using Editor;
+using System.Diagnostics;
+using System.Linq;
+using DirectPreview.Utility;
+using DirectPreviewEditor;
 using UnityEditor;
+using UnityEditor.PackageManager.UI;
 using UnityEngine;
+using UnityEngine.XR.Management;
+using Debug = UnityEngine.Debug;
 
 namespace Wave.XR.DirectPreview.Editor
 {
@@ -32,27 +38,28 @@ namespace Wave.XR.DirectPreview.Editor
             DirectPreviewUnityStateStore.Store(m_DirectPreviewState);
         }
 
-        private string lastKnownHeadsetIP = "";
+        public static bool HeadsetReachable(string wifiAddress)
+        {
+            bool canReach = false;
+            try
+            {
+                canReach = DirectPreviewHelper.PingHost( wifiAddress);
+            }catch{Debug.Log("PingHost exception");}
+            return canReach;
+        }
+        
         void ShowWifiGUI()
         {
             EditorGUILayout.LabelField("Use Wi-Fi to get data from device and show images on HMD.\n" +
                                        "Suggest to use 5G Wi-Fi to get better performance.", GUILayout.Height(40));
-					
-            m_DirectPreviewState.DeviceWifiAddress = EditorGUILayout.TextField("Device Wi-Fi IP: ", m_DirectPreviewState.DeviceWifiAddress);
-            if(GUILayout.Button("Test reachability of headset"))
-            {
-                bool canReach = false;
-                try
-                {
-                    canReach = DirectPreviewHelper.PingHost(m_DirectPreviewState.DeviceWifiAddress);
-                }catch{Debug.Log("PingHost exception");}
-                ShowNotification(new GUIContent(canReach ? "Reachable" : "Not reachable"));
-            }
-            if(GUILayout.Button("Get IP from headset (if possible)"))
+            GUI.enabled = false;
+            m_DirectPreviewState.DeviceWifiAddress = EditorGUILayout.TextField("Device Wi-Fi IP: ", m_DirectPreviewState.DeviceWifiAddress).Trim();
+            GUI.enabled = true;
+            if(GUILayout.Button("Get IP from headset (if connected through unity)"))
             {
                 try
                 {
-                    lastKnownHeadsetIP = ADBWrapper.GetConnectedHeadsetIP();
+                    m_DirectPreviewState.DeviceWifiAddress = DirectPreviewHelper.DeviceIPAddress();
                 }
                 catch (Exception e)
                 {
@@ -61,22 +68,11 @@ namespace Wave.XR.DirectPreview.Editor
                 }
             }
 
-            if (!string.IsNullOrEmpty(lastKnownHeadsetIP))
+            if(GUILayout.Button("Test reachability of headset"))
             {
-                if(lastKnownHeadsetIP != m_DirectPreviewState.DeviceWifiAddress)
-                {
-                    if(GUILayout.Button("Use last known IP"))
-                    {
-                        GUI.FocusControl(null); // unfocus from other items, as this can prevent the text field from updating
-                        m_DirectPreviewState.DeviceWifiAddress = lastKnownHeadsetIP;
-                    }
-                }
-                else
-                {
-                    GUILayout.Label("Last known IP is the same as current IP");
-                }
+                bool canReach = HeadsetReachable(m_DirectPreviewState.DeviceWifiAddress);
+                ShowNotification(new GUIContent(canReach ? "Reachable" : "Not reachable"));
             }
-	        
 
             //m_DirectPreviewState.DllTraceLogToFile = EditorGUI.Toggle(new Rect(0, 100, position.width, 20), "Save log to file", m_DirectPreviewState.DllTraceLogToFile);
 
@@ -88,7 +84,6 @@ namespace Wave.XR.DirectPreview.Editor
                 PreviewGUI();
             }
         }
-
         void PreviewGUI()
         {
             var fps_pairs = DirectPreviewUnityStateVersion1.FPSOption.FPS_Pairs;
@@ -103,41 +98,152 @@ namespace Wave.XR.DirectPreview.Editor
             
             m_DirectPreviewState.OutputImageToFile = EditorGUILayout.Toggle("Regularly save images: ", m_DirectPreviewState.OutputImageToFile);
         }
-
-
-        void ShowButtons()
+        public void UnfocusWindow()
         {
-            if(GUILayout.Button("Start Direct Preview"))
+            if(hasFocus)
+                GUI.FocusControl(null);
+        }
+        bool showRenderingServerLogs = false;
+        void ShowRemoteRenderingLogs()
+        {
+            //for some reason we can't get stdout from the process but we can get a pointer to it
+            // likely there's something obivious I'm missing
+            // but it does seem the process is running and not in a zombie state, but just throws errors if you try to access stdout + stderr between reloads of the appdomain
+            showRenderingServerLogs = EditorGUILayout.Foldout(showRenderingServerLogs, "Show rendering server logs");
+
+            if (showRenderingServerLogs)
             {
-                DirectPreviewHelper.StartDirectPreview(m_DirectPreviewState);
-            }
-            if (GUILayout.Button("Start streaming server"))
-            {
-                StreamingServer.StartStreamingServer();
-            }
-            if (GUILayout.Button("Stop streaming server"))
-            {
-                StreamingServer.StopStreamingServer();
-            }
-            if (GUILayout.Button("Start Device APK"))
-            {
-                DirectPreviewAPK.StartSimulator();
-            }
-            if (GUILayout.Button("Stop Device APK"))
-            {
-                DirectPreviewAPK.StopSimulator();
-            }
-            if (GUILayout.Button("Install Device APK"))
-            {
-                DirectPreviewAPK.InstallSimulator();
+                var runningProcess = DirectPreviewHelper.RemoteRenderingServer();
+                string textOutput = "";
+                string textErrors = "";
+                try
+                {
+                    var process = runningProcess.GetProcess();
+                    if (process != null)
+                    {
+                        process.Start(); //not sure why this process needs to be 'started', but here we are
+                        textOutput = process.StandardOutput.ReadToEnd();
+                        textErrors = process.StandardError.ReadToEnd();
+                    }
+                }
+                catch(Exception e)
+                {
+                    Debug.Log("Failed to get RR Process");
+                    Debug.LogException(e);
+                }
+                GUILayout.Label("Output:");
+                EditorGUILayout.TextArea(textOutput,GUILayout.Height(100));
+                GUILayout.Label("Errors:");
+                EditorGUILayout.TextArea(textErrors,GUILayout.Height(50));
             }
         }
 
+        void KillAllRemoteRenderingServersButton()
+        {
+            if (GUILayout.Button("Kill all rendering servers, useful for debugging"))
+            {
+                new System.Diagnostics.Process()
+                {
+                    StartInfo = new System.Diagnostics.ProcessStartInfo()
+                    {
+                        FileName = "taskkill",
+                        Arguments = "/F /IM dpServer.exe",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        CreateNoWindow = true,
+                    }
+                }.Start();
+            }
+        }
+        bool allGUIButtonsFoldout = false;
+        void ShowButtons()
+        {
+            if(GUILayout.Button("Start Direct Preview -- beta"))
+            {
+                DirectPreviewHelper.StartDirectPreview(m_DirectPreviewState);
+            }
+
+            //ShowRemoteRenderingLogs(); //still alpha
+            
+            allGUIButtonsFoldout = EditorGUILayout.Foldout(allGUIButtonsFoldout, "All GUI Buttons For debugging");
+            if (!allGUIButtonsFoldout) return;
+
+            UniqueNamedProcessPerUnityRun runningProcess = DirectPreviewHelper.RemoteRenderingServer();
+            if (!runningProcess.IsRunningHelperTest())
+            {
+                if (GUILayout.Button("Start streaming server"))
+                {
+                    //StreamingServer.StartStreamingServer();
+                    DirectPreviewHelper.RemoteRenderingServer().Start();
+                }
+                KillAllRemoteRenderingServersButton();
+            }
+            else
+            {
+                if (GUILayout.Button("Stop streaming server"))
+                {
+                    DirectPreviewHelper.RemoteRenderingServer().Stop();
+                }
+                if(GUILayout.Button("Test Dump info from reference"))
+                {
+                    TestDumpInfoFromReference(runningProcess);
+                }
+
+                KillAllRemoteRenderingServersButton();
+            }
+            
+            if(GUILayout.Button("Re-install and run apk"))
+            {
+                DirectPreviewHelper.InstallAndStartAPK();
+            }
+        }
+
+        private void TestDumpInfoFromReference(UniqueNamedProcessPerUnityRun runningProcess)
+        {
+            var process = runningProcess.GetProcess();
+            if (process != null)
+            {
+                process.Start();
+                var output = process.StandardOutput.ReadToEnd();
+                var error = process.StandardError.ReadToEnd();
+                Debug.Log("11Output:" + output);
+                Debug.Log("11Error:" + error);
+            }
+        }
+
+        static bool IsBuildingAgainstPlatforms()
+        {
+            //FIXME: set up the asmdefs so that the refleciton isn't needed
+            var assembly = AppDomain.CurrentDomain.GetAssemblies()
+                .FirstOrDefault(a => a.FullName.Contains("Wave.XRSDK.Editor"));
+            var waveQueryXRSettings = assembly.GetType("WaveQueryXRSettings"); //todo: namespace aka Wave.XRSDK.Editor.
+            bool buildAndroid = Convert.ToBoolean( ReflectionHelpers.InvokePublicStaticMethod(waveQueryXRSettings,"CheckIsBuildingWaveAndroid"));
+            bool buildPC = Convert.ToBoolean( ReflectionHelpers.InvokePublicStaticMethod(waveQueryXRSettings,"CheckIsBuildingWaveStandalone"));
+            return buildAndroid && buildPC;
+        }
+        static void SetWaveBuildingAgainstPlatforms()
+        {
+            //FIXME: set up the asmdefs so that the refleciton isn't needed
+            var assembly = AppDomain.CurrentDomain.GetAssemblies()
+                .FirstOrDefault(a => a.FullName.Contains("Wave.XRSDK.Editor"));
+            var waveQueryXRSettings = assembly.GetType("WaveQueryXRSettings"); //todo: namespace aka Wave.XRSDK.Editor.
+            ReflectionHelpers.InvokePublicStaticMethod(waveQueryXRSettings,"AddIsBuildingWaveAndroid");
+            ReflectionHelpers.InvokePublicStaticMethod(waveQueryXRSettings,"AddIsBuildingWaveStandalone");
+        }
         void OnGUI()
         {
             if (Application.isPlaying)
             {
                 EditorGUILayout.HelpBox("Application is Playing\n" + "Before any DirectPreview operation, please stop playing.", MessageType.None);
+                return;
+            }
+            if (!IsBuildingAgainstPlatforms())
+            {
+                EditorGUILayout.HelpBox("Please enable wave xr build options in the settings", MessageType.None);
+                if(GUILayout.Button("Enable Wave XR Build Options"))
+                {
+                    SetWaveBuildingAgainstPlatforms();
+                }
                 return;
             }
 
@@ -158,5 +264,7 @@ namespace Wave.XR.DirectPreview.Editor
         {
             Repaint();
         }
+
+        //use call menu item? or just reflection
     }
 }

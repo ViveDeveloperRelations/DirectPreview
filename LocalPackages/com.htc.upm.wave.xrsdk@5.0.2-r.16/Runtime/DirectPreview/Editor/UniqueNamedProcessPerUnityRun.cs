@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using UnityEditor;
+using Debug = UnityEngine.Debug;
 
 // Start a new named process or find the existing version of it, between reloads of the appdomain of unity
 //Typically you'll want to use this for processes where shellexecute = false so that the parent process is Unity, and if unity dies/freezes so will the sub-app
@@ -15,7 +16,18 @@ public class UniqueNamedProcessPerUnityRun
     {
         ProcessName = processName;
         StartInfo = startInfo;
-        FindProcessFromStateOrInvalidate();
+        Process = FindProcessFromStateOrInvalidate();
+        try
+        {
+            if(Process.HasExited)
+            {
+                Process = null;
+            }
+        }
+        catch
+        {
+            // ignored
+        }
     }
     private string StateKey()
     {
@@ -38,7 +50,24 @@ public class UniqueNamedProcessPerUnityRun
             return null;
         try
         {
-            return Process.GetProcessById(processID);
+            var process = Process.GetProcessById(processID);
+            process.Refresh();
+            try
+            {
+                if (process.HasExited)
+                {
+                    SetStateInt(INVALID_PROCESS_ID);
+                    return null;
+                }
+            }
+            catch
+            {
+            } //has exited can fail in a few spots, ignore this here for now
+
+            //process.StartInfo = StartInfo;
+            //GC.KeepAlive(process); //don't dispose of the process if it falls out of scope, we want the process to keep running
+            //process.Start(); //not sure why this reference that was looked up needs to be 'started' again, but it does
+            return process;
         }
         catch (ArgumentException) //GetProcessById throws "ArgumentException: Can't find process with ID 198528"
         {
@@ -63,10 +92,52 @@ public class UniqueNamedProcessPerUnityRun
         }
     }
 
+    public Process GetProcess()
+    {
+        return Process;
+    }
+
+    public bool IsRunningHelperTest()
+    {
+        if (Process == null) return false;
+        
+        try
+        {
+            if(Process.HasExited)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        catch
+        {
+            // ignored
+        }
+
+        return false;
+    }
+
     public void Start()
     {
+        if(Process != null)
+            return;
         Process = new Process(){StartInfo = StartInfo};
+        Process.OutputDataReceived += (sender, args) => { Debug.Log("OUTPUT DATA" + args.Data); };
+        Process.Exited += (sender, args) =>
+        {
+            Debug.Log("PROCESS EXITED"); 
+            UnityEngine.Debug.Log($"stdout; {Process.StandardOutput.ReadToEnd()}");
+            UnityEngine.Debug.Log($"stderr: {Process.StandardError.ReadToEnd()}");
+        };
+        
         Process.Start(); //this can throw... letting them propagate for now
+        Debug.Log("Started process " + ProcessName + " with id " + Process.Id);
+        Process.BeginOutputReadLine();
+        Process.BeginErrorReadLine();
+        
         SetStateInt(Process.Id);
         GC.KeepAlive(Process); //don't dispose of the process if it falls out of scope, we want the process to keep running
     }
@@ -75,6 +146,7 @@ public class UniqueNamedProcessPerUnityRun
     {
         if (Process == null) return;
         Process.Kill();
+        Process.WaitForExit(); //not sure about this one, might make this a flag - but this blocks until it's actually killed. most of the time this would be the expected behavior. add a flag if there's another usecase
         Process = null;
         SetStateInt(INVALID_PROCESS_ID);
     }

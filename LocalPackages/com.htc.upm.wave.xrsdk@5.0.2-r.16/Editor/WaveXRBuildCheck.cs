@@ -406,46 +406,6 @@ namespace Wave.XR.BuildCheck
 				File.Delete(AndroidManifestMetaPathDest);
 		}
 
-		static bool SetBuildingWave()
-		{
-			var androidGenericSettings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(BuildTargetGroup.Android);
-			var androidXRSettings = androidGenericSettings.AssignedSettings;
-			
-			if (androidXRSettings == null)
-			{
-				androidXRSettings = ScriptableObject.CreateInstance<XRManagerSettings>() as XRManagerSettings;
-			}
-			var didAssign = XRPackageMetadataStore.AssignLoader(androidXRSettings, "Wave.XR.Loader.WaveXRLoader", BuildTargetGroup.Android);
-			if (!didAssign)
-			{
-				Debug.LogError("Fail to add android WaveXRLoader.");
-			}
-			return didAssign;
-		}
-
-		static bool CheckIsBuildingWave()
-		{
-			var androidGenericSettings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(BuildTargetGroup.Android);
-			if (androidGenericSettings == null)
-				return false;
-
-			var androidXRMSettings = androidGenericSettings.AssignedSettings;
-			if (androidXRMSettings == null)
-				return false;
-#pragma warning disable 618
-			var loaders = androidXRMSettings.loaders;
-#pragma warning restore 618
-			
-			foreach (var loader in loaders)
-			{
-				if (loader.GetType() == typeof(WaveXRLoader))
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-
 		private class CustomPreprocessor : IPreprocessBuildWithReport
         {
             public int callbackOrder { get { return 0; } }
@@ -484,7 +444,7 @@ namespace Wave.XR.BuildCheck
 					AssetDatabase.Refresh();
 #endif
 				}
-				else if (report.summary.platform == BuildTarget.Android && CheckIsBuildingWave())
+				else if (report.summary.platform == BuildTarget.Android && WaveQueryXRSettings.CheckIsBuildingWaveAndroid())
                 {
 					CopyAndroidManifest();
 #if UNITY_2022_1_OR_NEWER
@@ -537,7 +497,7 @@ namespace Wave.XR.BuildCheck
 						File.Delete(Aar2017PathDest + ".meta");
 #endif
 				}
-				else if (report.summary.platform == BuildTarget.Android && CheckIsBuildingWave())
+				else if (report.summary.platform == BuildTarget.Android && WaveQueryXRSettings.AddIsBuildingWaveAndroid())
                 {
 					if (!isAndroidManifestPathDestExisted) // not to delete existed AndroidManifest.xml
 						DelAndroidManifest();

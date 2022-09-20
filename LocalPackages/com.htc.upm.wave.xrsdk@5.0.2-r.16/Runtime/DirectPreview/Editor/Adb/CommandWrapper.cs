@@ -4,7 +4,7 @@ using System.Reflection;
 using DirectPreview.Utility;
 using Debug = UnityEngine.Debug;
 
-namespace Editor
+namespace DirectPreviewEditor
 {
     public class CommandWrapper
     {

@@ -63,7 +63,6 @@ namespace Wave.XR.DirectPreview
 			isRightReady = false;
 		}
 
-
 		void OnRenderImage(RenderTexture src, RenderTexture dest)
 		{
 			//Debug.Log("vrUsage=" + src.vrUsage + ", width=" + src.width + ", height=" + src.height + ", name=" + src.name + ", frame=" + frame + ", eye=" + camera.stereoActiveEye);
@@ -108,9 +107,9 @@ namespace Wave.XR.DirectPreview
 					}
 					else
 					{
-						UnityEngine.Debug.LogError("WVR_SetRenderImageHandles fail");
+						//UnityEngine.Debug.LogError("WVR_SetRenderImageHandles fail");
 					}
-					//are these accessed by the plugin - if so there seems to be a potential race with the above call if it's running on a different thread.
+					//are these boolean flags accessed by the plugin - if so there seems to be a potential race with the above call if it's running on a different thread.
 					//if not, then they seem unnecessary except in local scope
 					isLeftReady = false;
 					isRightReady = false;

@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using DirectPreview.Utility;
+using Debug = UnityEngine.Debug;
 
-namespace Editor
+namespace DirectPreviewEditor
 {
     public class AdbFacade
     {
@@ -50,6 +53,76 @@ namespace Editor
         {
             return new AdbStatusFacade(m_AdbStatusType,m_AdbInstance.InvokePrivateMethod("GetADBProcessStatus"));
         }
+        static Regex DeviceInfoRegex = new Regex(@"(?<id>^\S+)\s+(?<state>\S+$)");
+
+        public enum DeviceState
+        {
+            UNKNOWN,
+            UNAUTHORIZED,
+            DISCONNECTED,
+            CONNECTED,
+        }
+        public struct DeviceInfo
+        {
+            public string id;
+            public DeviceState state;
+        }
+        private (bool,DeviceInfo) ParseDeviceInfoLine(string input)
+        {
+            var result = DeviceInfoRegex.Match(input);
+            if (result.Success)
+            {
+                var id = result.Groups["id"].Value;
+                var stateValue = result.Groups["state"].Value.ToLowerInvariant();
+                var state = DeviceState.UNKNOWN;
+                if (stateValue.Equals("device"))
+                    state = DeviceState.CONNECTED;
+                else if (stateValue.Equals("offline"))
+                    state = DeviceState.DISCONNECTED;
+                else if (stateValue.Equals("unauthorized"))
+                    state = DeviceState.UNAUTHORIZED;
+                
+                return (true,new DeviceInfo() { id = id, state = state });
+            }
+            else
+            {
+                return (false,default);
+            }
+        }
+        public DeviceInfo[] GetDevices()
+        {
+            var result = new List<DeviceInfo>();
+            try
+            {
+                var output = Run(new[] { "devices" }, "Failed to get devices");
+                var lines = output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var lineRaw in lines)
+                {
+                    var line = lineRaw.Trim();
+                    var (success, deviceInfo) = ParseDeviceInfoLine(line);
+                    if (success)
+                        result.Add(deviceInfo);
+                }
+            }catch(Exception e)
+            {
+                Debug.LogError("Error while parsing device strings");
+                UnityEngine.Debug.LogException(e);
+            }
+
+            return result.ToArray();
+        }
+
+        public bool OneDeviceConnected()
+        {
+            var devices = GetDevices();
+            int connectedDevices = 0;
+            foreach(var device in devices)
+            {
+                if (device.state == DeviceState.CONNECTED)
+                    connectedDevices++;
+            }
+            return connectedDevices == 1;
+        }
     }
     public class ADBProcFacade
     {
@@ -72,7 +145,7 @@ namespace Editor
         public bool External()
         {
             return Convert.ToBoolean(m_AdbProcFacade.GetPublicField("external"));
-        }            
+        }
     }
 
     public enum ADBProcessStatus

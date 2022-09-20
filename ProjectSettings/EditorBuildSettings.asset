@@ -6,8 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 9fc0d4010bbf28b4594072e72b8655ab
+    path: Assets/this_works.unity
+    guid: 2a62c1a432edb1d4ab0dd46c64a234d4
   m_configObjects:
     com.htc.upm.wave.xrsdk.xrsettings: {fileID: 11400000, guid: 3621978c08fc10e479225ab504d7474d, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: e61ccbf51ed828647b57de0768708d77, type: 2}
