@@ -47,7 +47,6 @@ namespace Wave.XR.DirectPreview.Editor
             }catch{Debug.Log("PingHost exception");}
             return canReach;
         }
-        private string lastKnownHeadsetIP = "";
         
         void ShowWifiGUI()
         {
