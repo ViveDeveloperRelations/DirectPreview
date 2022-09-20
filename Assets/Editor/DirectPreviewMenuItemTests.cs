@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Wave.XR.DirectPreview.Editor;
 
 public class DirectPreviewMenuItemTests : MonoBehaviour
 {
@@ -28,6 +29,13 @@ public class DirectPreviewMenuItemTests : MonoBehaviour
     public static void InstallAndRunAPK()
     {
         DirectPreviewHelper.InstallAndStartAPK();
+    }
+    [MenuItem("DirectPreviewTest/ResetHeadsetIP")]
+    public static void ResetHeadsetIP()
+    {
+        var state = DirectPreviewUnityStateStore.DeserializeDirectPreviewUnityStateVersionOrDefault();
+        state.DeviceWifiAddress = "";
+        DirectPreviewUnityStateStore.Store(state);
     }
 }
 #endif
