@@ -166,30 +166,35 @@ namespace Wave.XR.DirectPreview.Editor
             //ShowRemoteRenderingLogs(); //still alpha
             
             allGUIButtonsFoldout = EditorGUILayout.Foldout(allGUIButtonsFoldout, "All GUI Buttons For debugging");
-            if(allGUIButtonsFoldout){
-                UniqueNamedProcessPerUnityRun runningProcess = DirectPreviewHelper.RemoteRenderingServer();
-                if (!runningProcess.IsRunningHelperTest())
-                {
-                    if (GUILayout.Button("Start streaming server"))
-                    {
-                        //StreamingServer.StartStreamingServer();
-                        DirectPreviewHelper.RemoteRenderingServer().Start();
-                    }
-                    KillAllRemoteRenderingServersButton();
-                }
-                else
-                {
-                    if (GUILayout.Button("Stop streaming server"))
-                    {
-                        DirectPreviewHelper.RemoteRenderingServer().Stop();
-                    }
-                    if(GUILayout.Button("Test Dump info from reference"))
-                    {
-                        TestDumpInfoFromReference(runningProcess);
-                    }
+            if (!allGUIButtonsFoldout) return;
 
-                    KillAllRemoteRenderingServersButton();
+            UniqueNamedProcessPerUnityRun runningProcess = DirectPreviewHelper.RemoteRenderingServer();
+            if (!runningProcess.IsRunningHelperTest())
+            {
+                if (GUILayout.Button("Start streaming server"))
+                {
+                    //StreamingServer.StartStreamingServer();
+                    DirectPreviewHelper.RemoteRenderingServer().Start();
                 }
+                KillAllRemoteRenderingServersButton();
+            }
+            else
+            {
+                if (GUILayout.Button("Stop streaming server"))
+                {
+                    DirectPreviewHelper.RemoteRenderingServer().Stop();
+                }
+                if(GUILayout.Button("Test Dump info from reference"))
+                {
+                    TestDumpInfoFromReference(runningProcess);
+                }
+
+                KillAllRemoteRenderingServersButton();
+            }
+            
+            if(GUILayout.Button("Re-install and run apk"))
+            {
+                DirectPreviewHelper.InstallAndStartAPK();
             }
         }
 
