@@ -133,6 +133,7 @@ public class UniqueNamedProcessPerUnityRun
     {
         if (Process == null) return;
         Process.Kill();
+        Process.WaitForExit(); //not sure about this one, might make this a flag - but this blocks until it's actually killed. most of the time this would be the expected behavior. add a flag if there's another usecase
         Process = null;
         SetStateInt(INVALID_PROCESS_ID);
     }
