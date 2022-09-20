@@ -6,7 +6,7 @@ using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using Editor;
+using DirectPreviewEditor;
 using UnityEditor;
 using Wave.XR.DirectPreview.Editor;
 using Debug = UnityEngine.Debug;

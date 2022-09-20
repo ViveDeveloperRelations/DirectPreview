@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using DirectPreview.Utility;
-using Editor;
+using DirectPreviewEditor;
 using UnityEditor;
 using UnityEditor.PackageManager.UI;
 using UnityEngine;

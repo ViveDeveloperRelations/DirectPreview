@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.XR;
 using Wave.XR.DirectPreview.Editor;
+using Debug = UnityEngine.Debug;
 
 #if UNITY_EDITOR && UNITY_ANDROID
 namespace Wave.XR.DirectPreview
@@ -60,9 +61,10 @@ namespace Wave.XR.DirectPreview
 				PrintDebug("Enable Direct Preview: " + false);
 			}
 		}
-
+		
 		public static bool dpServerProcessChecker()
 		{
+			Debug.LogError("DpServerProcessChecker is being called");
 			bool flag = false;
 			Process[] processlist = Process.GetProcesses();
 			foreach (Process theProcess in processlist)
@@ -91,7 +93,7 @@ namespace Wave.XR.DirectPreview
 				PrintDebug("Register direct preview print callback");
 				WVR_SetPrintCallback_S(PrintLog);
 				//TODO: re-call EnableDP when the state options change
-				//TODO: find out if this needs to be called across assembly reloads or on init
+				//TODO: find out if this needs to be called across assembly reloads or on init 
 				EnableDP(true, (SIM_ConnectType)dpState.ConnectType, ptrIPaddr, dpState.EnablePreviewImage, false /*dpSerializedState.DllTraceLogToFile */, dpState.OutputImageToFile);
 				PrintDebug("Enable Direct Preview: " + true + ", connection: " + dpState.ConnectType + ", IP: " + ipaddr + ", preview: " + dpState.EnablePreviewImage + ", log: " + false + ", image: " + dpState.OutputImageToFile);
 			}

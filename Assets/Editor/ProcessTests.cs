@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using Editor;
+using DirectPreviewEditor;
 using UnityEditor;
 using Debug = UnityEngine.Debug;
 

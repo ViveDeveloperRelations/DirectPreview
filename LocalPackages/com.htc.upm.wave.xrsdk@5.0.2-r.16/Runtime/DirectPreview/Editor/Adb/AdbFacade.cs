@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using DirectPreview.Utility;
 using Debug = UnityEngine.Debug;
 
-namespace Editor
+namespace DirectPreviewEditor
 {
     public class AdbFacade
     {
