@@ -188,9 +188,9 @@ public class ProcessTests
         SimpleHelloWorld(setup.Item1);
     }
 #endif
-    private static (CommandWrapper,ADBWrapper.AdbReflectionSetup) GetSetup()
+    private static (CommandWrapper,AdbReflectionSetup) GetSetup()
     {
-        ADBWrapper.AdbReflectionSetup adbReflection = new ADBWrapper.AdbReflectionSetup();
+        AdbReflectionSetup adbReflection = new AdbReflectionSetup();
         var commandType = adbReflection.AndroidExtensionsAssembly.GetType("UnityEditor.Android.Command");
         if(commandType == null)
             Debug.Log("CommandType is null");
@@ -202,7 +202,7 @@ public class ProcessTests
         var commandWrapper = new CommandWrapper(adbReflection.AndroidExtensionsAssembly,adbReflection.UnityEditorCoreModule);
         return (commandWrapper,adbReflection);
     }
-    static void TestADBDevicesRunFromPath(CommandWrapper commandWrapper, ADBWrapper.AdbReflectionSetup adbReflection)
+    static void TestADBDevicesRunFromPath(CommandWrapper commandWrapper, AdbReflectionSetup adbReflection)
     {
         ProcessStartInfo si = new ProcessStartInfo()
         {

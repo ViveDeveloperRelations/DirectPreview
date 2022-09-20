@@ -91,7 +91,7 @@ public class DirectPreviewHelper
             Path.GetFullPath(
                 "Packages/com.htc.upm.wave.xrsdk/Runtime/DirectPreview/Binary/wvr_plugins_directpreview_agent_unity.apk");
         if (!File.Exists(absolutePath)) throw new Exception("DirectPreview agent apk not found");
-        ADBWrapper.AdbReflectionSetup adbReflection = new ADBWrapper.AdbReflectionSetup();
+        AdbReflectionSetup adbReflection = new AdbReflectionSetup();
         var adbFacade = adbReflection.AdbFacade;
 
         
@@ -118,7 +118,7 @@ public class DirectPreviewHelper
 
     private static void StopAndUninstallOldAPK()
     {
-        ADBWrapper.AdbReflectionSetup adbReflection = new ADBWrapper.AdbReflectionSetup();
+        AdbReflectionSetup adbReflection = new AdbReflectionSetup();
         var adbFacade = adbReflection.AdbFacade;
         const string apkPackageName = "com.htc.vr.directpreview.agent.unity";
         var canFailShutdownCommands = new[]
@@ -136,7 +136,7 @@ public class DirectPreviewHelper
 
     private static string DeviceIPAddress()
     {
-        ADBWrapper.AdbReflectionSetup adbReflection = new ADBWrapper.AdbReflectionSetup();
+        AdbReflectionSetup adbReflection = new AdbReflectionSetup();
         var adbFacade = adbReflection.AdbFacade;
         var shellCommand = @"""ip addr show wlan0  | grep 'inet ' | cut -d ' ' -f 6 | cut -d / -f 1""";
         var deviceIP = adbFacade.Run(new[] {"shell", shellCommand}, "error running get ip");
@@ -161,7 +161,7 @@ public class DirectPreviewHelper
             }
             OnDeviceJsonConfig.WriteConfig(OnDeviceJsonConfig.RemoteRenderingDeviceIPAddress(), directPreviewState.DeviceType);
         }
-        ADBWrapper.AdbReflectionSetup adbReflection = new ADBWrapper.AdbReflectionSetup();
+        AdbReflectionSetup adbReflection = new AdbReflectionSetup();
         var adbFacade = adbReflection.AdbFacade;
         adbFacade.Run(new[] {"push","\""+ OnDeviceJsonConfig.JsonConfigPath() +"\" /sdcard/DirectPreview/config.json"}, "Failed to push json config file");
         
