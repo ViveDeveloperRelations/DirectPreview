@@ -19,7 +19,7 @@ public class WaveQueryXRSettings
     }
     static bool CheckIsBuildingWave(BuildTargetGroup buildTargetGroup)
     {
-        var androidGenericSettings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(BuildTargetGroup.Android);
+        var androidGenericSettings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(buildTargetGroup);
         if (androidGenericSettings == null)
             return false;
 
