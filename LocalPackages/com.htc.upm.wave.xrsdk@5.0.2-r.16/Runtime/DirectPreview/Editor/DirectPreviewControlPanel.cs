@@ -119,45 +119,6 @@ namespace Wave.XR.DirectPreview.Editor
             
             m_DirectPreviewState.OutputImageToFile = EditorGUILayout.Toggle("Regularly save images: ", m_DirectPreviewState.OutputImageToFile);
         }
-
-        
-        
-#if ALPHA_FEATURE_SHOW_RR_LOGS
-        bool showRenderingServerLogs = false;
-        void ShowRemoteRenderingLogs()
-        {
-            //for some reason we can't get stdout from the process but we can get a pointer to it
-            // likely there's something obivious I'm missing
-            // but it does seem the process is running and not in a zombie state, but just throws errors if you try to access stdout + stderr between reloads of the appdomain
-            showRenderingServerLogs = EditorGUILayout.Foldout(showRenderingServerLogs, "Show rendering server logs");
-
-            if (showRenderingServerLogs)
-            {
-                var runningProcess = DirectPreviewHelper.RemoteRenderingServer();
-                string textOutput = "";
-                string textErrors = "";
-                try
-                {
-                    var process = runningProcess.GetProcess();
-                    if (process != null)
-                    {
-                        process.Start(); //not sure why this process needs to be 'started', but here we are
-                        textOutput = process.StandardOutput.ReadToEnd();
-                        textErrors = process.StandardError.ReadToEnd();
-                    }
-                }
-                catch(Exception e)
-                {
-                    Debug.Log("Failed to get RR Process");
-                    Debug.LogException(e);
-                }
-                GUILayout.Label("Output:");
-                EditorGUILayout.TextArea(textOutput,GUILayout.Height(100));
-                GUILayout.Label("Errors:");
-                EditorGUILayout.TextArea(textErrors,GUILayout.Height(50));
-            }
-        }
-#endif //ALPHA_FEATURE_SHOW_RR_LOGS
         
         bool allGUIButtonsFoldout = false;
         void ShowButtons()
