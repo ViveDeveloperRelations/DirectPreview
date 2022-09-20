@@ -1,4 +1,4 @@
-
+//#define ENABLE_TESTS
 #if ENABLE_TESTS
 using System.Reflection;
 using DirectPreviewEditor;
@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class NewBehaviourScript : MonoBehaviour
 {
-    [MenuItem("FOOBAR/TEST")]
+    [MenuItem("ProcessTests/PrimaryTest reference")]
     public static void SetupAndroidLogcatWithReflection()
     {
         //TODO: should this respond if hte user changes their sdk settings?
@@ -50,7 +50,7 @@ public class NewBehaviourScript : MonoBehaviour
         Debug.Log("TEST BAR");
     }
 
-    //[MenuItem("FOOBAR/CommandTypeTest")]
+    //[MenuItem("AdbTests/CommandTypeTest")]
     public static void TestCommandType()
     {
         var adbReflection = new ADBWrapper.AdbReflectionSetup();
@@ -68,7 +68,7 @@ public class NewBehaviourScript : MonoBehaviour
         //commandWrapper.Run(adbReflection.AdbFacade.GetAdbPath(), "devices", "", "Error Running Devices");
     }
 
-    [MenuItem("FOOBAR/Test ADB Devices")]
+    [MenuItem("AdbTests/Test ADB Devices")]
     public static void TestADBDevices()
     {
         var adbReflection = new ADBWrapper.AdbReflectionSetup();
@@ -104,7 +104,7 @@ public class NewBehaviourScript : MonoBehaviour
         Debug.Log($"Headset ip address {ip}");
     }
 
-    [MenuItem("FOOBAR/Test ADB DeviceCount")]
+    [MenuItem("AdbTests/Test ADB DeviceCount")]
     public static void AdbDeviceCount()
     {
         var adbReflection = new ADBWrapper.AdbReflectionSetup();
