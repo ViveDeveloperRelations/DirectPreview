@@ -246,7 +246,16 @@ namespace Wave.XR.DirectPreview.Editor
                 }
                 return;
             }
-
+            if(EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android)
+            {
+                EditorGUILayout.HelpBox("Please switch to Android build target", MessageType.None);
+                if(GUILayout.Button("Switch to Android build target"))
+                {
+                    EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+                }
+                return;
+            }
+            
             configFoldout = EditorGUILayout.Foldout(configFoldout, "Config");
             if (configFoldout)
             {
